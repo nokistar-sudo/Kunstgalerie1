@@ -61,9 +61,7 @@ button:hover,.button:hover {
   padding:25px;
   animation:introFadeOut 1.2s ease 5s forwards;
 }
-.intro-inner {
-  animation:introAppear 1.5s ease both;
-}
+.intro-inner {animation:introAppear 1.5s ease both}
 .intro-small {
   color:var(--accent);
   letter-spacing:3px;
@@ -132,6 +130,10 @@ header {
   gap:8px;
   flex-wrap:wrap;
   justify-content:flex-end;
+  align-items:center;
+}
+.header-actions button {
+  white-space:nowrap;
 }
 
 /* HERO */
@@ -216,9 +218,7 @@ section {
   cursor:pointer;
   transition:transform .2s;
 }
-.artwork:hover {
-  transform:translateY(-4px);
-}
+.artwork:hover {transform:translateY(-4px)}
 .artwork img {
   display:block;
   width:100%;
@@ -383,8 +383,18 @@ footer {
 }
 
 @media(max-width:600px) {
-  header {padding:17px 4%}
+  header {
+    padding:14px 4%;
+    flex-wrap:wrap;
+  }
   .logo {font-size:16px}
+  .header-actions {
+    gap:6px;
+  }
+  .header-actions button {
+    padding:9px 10px;
+    font-size:12px;
+  }
   .gallery {
     grid-template-columns:repeat(2,minmax(0,1fr));
     gap:12px;
@@ -429,9 +439,24 @@ footer {
   </a>
 
   <div class="header-actions">
+
     <button onclick="toggleTheme()" id="themeButton">
       ☾ Dunkel
     </button>
+
+    <!-- ADMIN-BUTTON JETZT DIREKT NEBEN HELL/DUNKEL -->
+    <button id="adminButton"
+            onclick="openLogin()"
+            style="display:inline-block">
+      ⚙ Admin
+    </button>
+
+    <button id="logoutButton"
+            onclick="logoutAdmin()"
+            style="display:none">
+      Abmelden
+    </button>
+
   </div>
 </header>
 
@@ -457,17 +482,6 @@ footer {
   <a class="button" href="./Kunstkatalog.pdf" target="_blank">
     PDF-Katalog
   </a>
-
-  <!-- ADMIN-BUTTON: HIER SICHTBAR IN DER NAVIGATION -->
-  <button id="adminButton" onclick="openLogin()">
-    ⚙ Admin
-  </button>
-
-  <button id="logoutButton"
-          onclick="logoutAdmin()"
-          style="display:none">
-    Abmelden
-  </button>
 </nav>
 
 <!-- GALERIE -->
@@ -526,7 +540,7 @@ footer {
 
 <!-- BILD-GROSSANSICHT -->
 <div class="modal" id="modal" onclick="closeModal(event)">
-  <button class="close" onclick="closeModal()">×</button>
+  <button class="close" onclick="closeModal(event)">×</button>
 
   <div class="modal-content" onclick="event.stopPropagation()">
     <img id="modalImage" src="" alt="">
@@ -856,6 +870,7 @@ async function checkAdmin(user) {
     }
   }
 
+  // Admin-Button bleibt sichtbar, solange kein Admin angemeldet ist.
   document.getElementById("adminButton").style.display =
     isAdmin ? "none" : "inline-block";
 
