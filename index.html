@@ -3,77 +3,357 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Wort trifft Objekt</title>
+<meta name="theme-color" content="#f3f0e8">
+<title>Wort trifft Objekt – Barbara Schütze</title>
+
 <style>
-* {
-    box-sizing: border-box;
+:root {
+  --bg: #f3f0e8;
+  --surface: #faf9f5;
+  --text: #343b32;
+  --muted: #77796e;
+  --accent: #66745e;
+  --border: #dedbd0;
 }
+
+body.dark {
+  --bg: #191a19;
+  --surface: #252725;
+  --text: #eee9df;
+  --muted: #aaa99e;
+  --accent: #a5b39b;
+  --border: #41443f;
+}
+
+* { box-sizing: border-box; }
+
 body {
-    margin: 0;
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 25px;
-    background: #f3f0e8;
-    color: #343b32;
-    font-family: Georgia, serif;
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Georgia, serif;
+  transition: background .3s, color .3s;
 }
-main {
-    max-width: 650px;
-    width: 100%;
-    padding: 60px 25px;
-    text-align: center;
-    background: #faf9f5;
-    border: 1px solid #dedbd0;
+
+header {
+  padding: 24px 6%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border);
 }
-h1 {
-    font-size: 38px;
-    font-weight: normal;
+
+.logo {
+  font-size: 20px;
+  color: var(--text);
+  text-decoration: none;
 }
+
+button, .button {
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  padding: 11px 16px;
+  font-family: inherit;
+  font-size: 14px;
+  text-decoration: none;
+  border-radius: 3px;
+}
+
+.hero {
+  text-align: center;
+  padding: 85px 20px 70px;
+}
+
+.hero h1 {
+  font-size: clamp(38px, 7vw, 65px);
+  font-weight: normal;
+  margin: 0;
+}
+
 .subtitle {
-    margin-top: 18px;
-    color: #77796e;
-    font-size: 17px;
-    letter-spacing: 1px;
+  color: var(--muted);
+  letter-spacing: 2px;
+  margin-top: 20px;
+  font-size: 14px;
 }
-.artist {
-    margin-top: 35px;
-    color: #666b60;
-    line-height: 1.8;
+
+.artist-name {
+  margin-top: 30px;
+  color: var(--muted);
 }
-a {
-    display: inline-block;
-    margin-top: 35px;
-    padding: 16px 30px;
-    background: #66745e;
-    color: white;
-    text-decoration: none;
-    border-radius: 3px;
+
+nav {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 0 15px 45px;
 }
+
+section {
+  max-width: 1250px;
+  margin: auto;
+  padding: 30px 6% 75px;
+}
+
+.section-title {
+  font-size: 32px;
+  font-weight: normal;
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.section-description {
+  text-align: center;
+  color: var(--muted);
+  margin-bottom: 38px;
+}
+
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 22px;
+}
+
+.artwork {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 10px;
+  cursor: pointer;
+  transition: transform .2s;
+}
+
+.artwork:hover {
+  transform: translateY(-4px);
+}
+
+.artwork img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  background: var(--bg);
+}
+
+.artwork p {
+  text-align: center;
+  color: var(--muted);
+  font-size: 14px;
+  margin: 13px 0 5px;
+}
+
+.panel {
+  display: none;
+  text-align: center;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 45px 25px;
+  line-height: 1.8;
+}
+
+.panel.active {
+  display: block;
+}
+
+#gallerySection.hidden {
+  display: none;
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  background: rgba(0,0,0,.92);
+  padding: 25px;
+  align-items: center;
+  justify-content: center;
+  overflow-y: auto;
+}
+
+.modal.open {
+  display: flex;
+}
+
+.modal-content {
+  max-width: 850px;
+  width: 100%;
+  text-align: center;
+  color: #fff;
+}
+
+.modal img {
+  max-width: 100%;
+  max-height: 70vh;
+  object-fit: contain;
+}
+
+.modal h2 {
+  font-weight: normal;
+}
+
+.close {
+  position: fixed;
+  top: 18px;
+  right: 20px;
+  color: white;
+  background: #333;
+  border: none;
+  font-size: 22px;
+}
+
 footer {
-    margin-top: 55px;
-    color: #99998e;
-    font-size: 12px;
+  text-align: center;
+  padding: 35px 15px;
+  color: var(--muted);
+  border-top: 1px solid var(--border);
+  font-size: 13px;
+}
+
+@media(max-width:600px) {
+  header { padding: 17px 4%; }
+  .logo { font-size: 16px; }
+  .gallery { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .artwork { padding: 6px; }
 }
 </style>
 </head>
+
 <body>
-<main>
-    <h1>Wort trifft Objekt</h1>
-    <div class="subtitle">
-        Fundstücke, Figuren und Gedanken
-    </div>
-    <div class="artist">
-        Ein Kunstkatalog von<br>
-        Barbara Schütze
-    </div>
-    <a href="./Kunstkatalog.pdf">
-        Kunstkatalog ansehen
+
+<header>
+  <a class="logo" href="#" onclick="showPage('gallery')">Wort trifft Objekt</a>
+  <button onclick="toggleTheme()" id="themeButton">☾ Dunkel</button>
+</header>
+
+<div class="hero">
+  <h1>Wort trifft Objekt</h1>
+  <div class="subtitle">FUNDSTÜCKE · FIGUREN · GEDANKEN</div>
+  <div class="artist-name">Eine digitale Ausstellung von<br>Barbara Schütze</div>
+</div>
+
+<nav>
+  <button onclick="showPage('gallery')">Galerie</button>
+  <button onclick="showPage('about')">Über die Künstlerin</button>
+  <a class="button" href="./Kunstkatalog.pdf" target="_blank">PDF-Katalog</a>
+</nav>
+
+<section id="gallerySection">
+  <h2 class="section-title">Die Ausstellung</h2>
+  <p class="section-description">
+    Fünfzig Werke – fünfzig eigene Perspektiven.
+  </p>
+  <div class="gallery" id="gallery"></div>
+</section>
+
+<section id="aboutSection" class="panel">
+  <h2 class="section-title">Über die Künstlerin</h2>
+  <p>
+    Barbara Schütze
+  </p>
+  <p>
+    Ein Einblick in die Künstlerin, ihre Gedanken und ihre kreative Arbeit.
+    Jedes Objekt erzählt seine eigene Geschichte und eröffnet einen neuen
+    Blick auf die kleinen und großen Dinge des Lebens.
+  </p>
+  <p>
+    Kontakt:
+    <a href="mailto:ba.schuetze@web.de" style="color:var(--accent)">
+      ba.schuetze@web.de
     </a>
-    <footer>
-        Eine digitale Ausstellung
-    </footer>
-</main>
+  </p>
+</section>
+
+<footer>
+  Wort trifft Objekt · Barbara Schütze
+</footer>
+
+<div class="modal" id="modal" onclick="closeModal(event)">
+  <button class="close" onclick="closeModal()">×</button>
+  <div class="modal-content">
+    <img id="modalImage" src="" alt="">
+    <h2 id="modalTitle"></h2>
+    <p id="modalDescription">Weitere Informationen zum Kunstwerk folgen.</p>
+  </div>
+</div>
+
+<script>
+const gallery = document.getElementById("gallery");
+
+for (let i = 1; i <= 50; i++) {
+  const card = document.createElement("div");
+  card.className = "artwork";
+
+  const img = document.createElement("img");
+  img.src = `./bilder/bild${i}.jpg`;
+  img.alt = `Kunstwerk ${i}`;
+  img.loading = "lazy";
+
+  img.onerror = () => {
+    card.style.display = "none";
+  };
+
+  const caption = document.createElement("p");
+  caption.textContent = `Kunstwerk ${i}`;
+
+  card.appendChild(img);
+  card.appendChild(caption);
+
+  card.onclick = () => openModal(i, img.src);
+
+  gallery.appendChild(card);
+}
+
+function openModal(number, source) {
+  document.getElementById("modalImage").src = source;
+  document.getElementById("modalTitle").textContent =
+    `Kunstwerk ${number}`;
+  document.getElementById("modal").classList.add("open");
+}
+
+function closeModal(event) {
+  if (!event || event.target.id === "modal" ||
+      event.target.className === "close") {
+    document.getElementById("modal").classList.remove("open");
+  }
+}
+
+function showPage(page) {
+  const gallerySection = document.getElementById("gallerySection");
+  const aboutSection = document.getElementById("aboutSection");
+
+  if (page === "about") {
+    gallerySection.classList.add("hidden");
+    aboutSection.classList.add("active");
+  } else {
+    gallerySection.classList.remove("hidden");
+    aboutSection.classList.remove("active");
+  }
+
+  window.scrollTo({top: 0, behavior: "smooth"});
+}
+
+function toggleTheme() {
+  document.body.classList.toggle("dark");
+  const dark = document.body.classList.contains("dark");
+
+  document.getElementById("themeButton").textContent =
+    dark ? "☀ Hell" : "☾ Dunkel";
+
+  try {
+    localStorage.setItem("kunstgalerie-theme", dark ? "dark" : "light");
+  } catch(e) {}
+}
+
+try {
+  if (localStorage.getItem("kunstgalerie-theme") === "dark") {
+    document.body.classList.add("dark");
+    document.getElementById("themeButton").textContent = "☀ Hell";
+  }
+} catch(e) {}
+</script>
+
 </body>
 </html>
