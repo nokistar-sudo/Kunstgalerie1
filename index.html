@@ -24,6 +24,7 @@ body.dark {
   --border:#41443f;
 }
 * {box-sizing:border-box}
+
 body {
   margin:0;
   background:var(--bg);
@@ -31,6 +32,7 @@ body {
   font-family:Georgia,serif;
   transition:background .3s,color .3s;
 }
+
 button,.button {
   cursor:pointer;
   border:1px solid var(--border);
@@ -59,7 +61,9 @@ button:hover,.button:hover {
   padding:25px;
   animation:introFadeOut 1.2s ease 5s forwards;
 }
-.intro-inner {animation:introAppear 1.5s ease both}
+.intro-inner {
+  animation:introAppear 1.5s ease both;
+}
 .intro-small {
   color:var(--accent);
   letter-spacing:3px;
@@ -150,6 +154,8 @@ header {
   margin-top:25px;
   color:var(--muted);
 }
+
+/* NAVIGATION */
 nav {
   display:flex;
   justify-content:center;
@@ -157,6 +163,8 @@ nav {
   flex-wrap:wrap;
   padding:0 15px 40px;
 }
+
+/* CONTENT */
 section {
   max-width:1250px;
   margin:auto;
@@ -208,7 +216,9 @@ section {
   cursor:pointer;
   transition:transform .2s;
 }
-.artwork:hover {transform:translateY(-4px)}
+.artwork:hover {
+  transform:translateY(-4px);
+}
 .artwork img {
   display:block;
   width:100%;
@@ -241,7 +251,7 @@ section {
 .panel.active {display:block}
 #gallerySection.hidden {display:none}
 
-/* MODAL */
+/* IMAGE MODAL */
 .modal {
   display:none;
   position:fixed;
@@ -363,6 +373,7 @@ section {
   color:var(--muted);
   line-height:1.5;
 }
+
 footer {
   text-align:center;
   padding:35px 15px;
@@ -380,6 +391,7 @@ footer {
   }
   .artwork {padding:6px}
 }
+
 @media(prefers-reduced-motion:reduce) {
   #intro {animation:none;display:none}
   .intro-title,.intro-sub,.intro-author,.intro-small {
@@ -392,6 +404,7 @@ footer {
 
 <body>
 
+<!-- ANIMIERTES INTRO -->
 <div id="intro">
   <div class="intro-inner">
     <div class="intro-small">
@@ -408,37 +421,59 @@ footer {
   </div>
 </div>
 
+<!-- KOPFBEREICH -->
 <header>
-  <a class="logo" href="#" onclick="showPage('gallery');return false">
+  <a class="logo" href="#"
+     onclick="showPage('gallery');return false">
     Wort trifft Objekt
   </a>
+
   <div class="header-actions">
-    <button onclick="toggleTheme()" id="themeButton">☾ Dunkel</button>
-    <button onclick="openLogin()" id="adminButton">Admin</button>
-    <button onclick="logoutAdmin()" id="logoutButton" style="display:none">
-      Abmelden
+    <button onclick="toggleTheme()" id="themeButton">
+      ☾ Dunkel
     </button>
   </div>
 </header>
 
+<!-- TITEL -->
 <div class="hero">
   <h1>Wort trifft Objekt</h1>
-  <div class="subtitle">FUNDSTÜCKE · FIGUREN · GEDANKEN</div>
+  <div class="subtitle">
+    FUNDSTÜCKE · FIGUREN · GEDANKEN
+  </div>
   <div class="artist-name">
     Eine digitale Ausstellung von<br>Barbara Schütze
   </div>
 </div>
 
+<!-- NAVIGATION -->
 <nav>
   <button onclick="showPage('gallery')">Galerie</button>
-  <button onclick="showPage('about')">Über die Künstlerin</button>
+
+  <button onclick="showPage('about')">
+    Über die Künstlerin
+  </button>
+
   <a class="button" href="./Kunstkatalog.pdf" target="_blank">
     PDF-Katalog
   </a>
+
+  <!-- ADMIN-BUTTON: HIER SICHTBAR IN DER NAVIGATION -->
+  <button id="adminButton" onclick="openLogin()">
+    ⚙ Admin
+  </button>
+
+  <button id="logoutButton"
+          onclick="logoutAdmin()"
+          style="display:none">
+    Abmelden
+  </button>
 </nav>
 
+<!-- GALERIE -->
 <section id="gallerySection">
   <h2 class="section-title">Die Ausstellung</h2>
+
   <p class="section-description">
     Fünfzig Werke – fünfzig eigene Perspektiven.
   </p>
@@ -451,72 +486,103 @@ footer {
       aria-label="Kunstwerke suchen"
       oninput="searchArtworks()"
     >
+
     <div class="search-hint">
       Durchsuche die Ausstellung nach Nummer, Titel oder Beschreibung.
     </div>
   </div>
 
   <div class="gallery" id="gallery"></div>
+
   <div class="no-results" id="noResults">
     Keine passenden Kunstwerke gefunden.
   </div>
 </section>
 
+<!-- KÜNSTLERSEITE -->
 <section id="aboutSection" class="panel">
   <h2 class="section-title">Über die Künstlerin</h2>
+
   <p><strong>Barbara Schütze</strong></p>
+
   <p>
     Ein Einblick in die Künstlerin, ihre Gedanken und ihre kreative Arbeit.
     Jedes Objekt erzählt seine eigene Geschichte und eröffnet einen neuen
     Blick auf die kleinen und großen Dinge des Lebens.
   </p>
+
   <p>
     Kontakt:
-    <a href="mailto:ba.schuetze@web.de" style="color:var(--accent)">
+    <a href="mailto:ba.schuetze@web.de"
+       style="color:var(--accent)">
       ba.schuetze@web.de
     </a>
   </p>
 </section>
 
-<footer>Wort trifft Objekt · Barbara Schütze</footer>
+<footer>
+  Wort trifft Objekt · Barbara Schütze
+</footer>
 
 <!-- BILD-GROSSANSICHT -->
 <div class="modal" id="modal" onclick="closeModal(event)">
   <button class="close" onclick="closeModal()">×</button>
+
   <div class="modal-content" onclick="event.stopPropagation()">
     <img id="modalImage" src="" alt="">
+
     <h2 id="modalTitle"></h2>
+
     <p id="modalDescription" class="modal-description"></p>
 
+    <!-- BEARBEITUNGSBEREICH -->
     <div id="adminEditor" class="admin-panel">
       <h3>Kunstwerk bearbeiten</h3>
+
       <label for="editTitle">Titel</label>
       <input id="editTitle" maxlength="200">
 
       <label for="editDescription">Beschreibung</label>
       <textarea id="editDescription"></textarea>
 
-      <button onclick="saveArtwork()">Änderungen speichern</button>
+      <button onclick="saveArtwork()">
+        Änderungen speichern
+      </button>
+
       <div id="saveMessage" class="admin-message"></div>
     </div>
   </div>
 </div>
 
-<!-- ADMIN-LOGIN -->
+<!-- ADMIN LOGIN -->
 <div class="login-overlay" id="loginOverlay">
   <div class="login-box">
-    <button onclick="closeLogin()" style="float:right;width:auto;margin:0">
+
+    <button onclick="closeLogin()"
+            style="float:right;width:auto;margin:0">
       ×
     </button>
+
     <h2>Admin-Anmeldung</h2>
 
     <form onsubmit="loginAdmin(event)">
       <label for="loginEmail">E-Mail-Adresse</label>
-      <input id="loginEmail" type="email" required autocomplete="username">
+
+      <input
+        id="loginEmail"
+        type="email"
+        required
+        autocomplete="username"
+      >
 
       <label for="loginPassword">Passwort</label>
-      <input id="loginPassword" type="password" required
-        autocomplete="current-password">
+
+      <input
+        id="loginPassword"
+        type="password"
+        required
+        autocomplete="current-password"
+      >
 
       <button type="submit">Anmelden</button>
     </form>
@@ -527,13 +593,14 @@ footer {
   </div>
 </div>
 
-<!-- SUPABASE -->
+<!-- SUPABASE VERBINDUNG -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
-// --------------------------------------------------
-// SUPABASE VERBINDUNG
-// --------------------------------------------------
+
+// ================================================
+// SUPABASE
+// ================================================
 
 const SUPABASE_URL =
   "https://wurunvcuikmjaehkdcvb.supabase.co";
@@ -546,9 +613,9 @@ const supabaseClient = window.supabase.createClient(
   SUPABASE_KEY
 );
 
-// --------------------------------------------------
-// DATEN
-// --------------------------------------------------
+// ================================================
+// GRUNDDATEN
+// ================================================
 
 let artworks = [];
 let isAdmin = false;
@@ -562,6 +629,10 @@ function defaultArtworks() {
   }));
 }
 
+// ================================================
+// KUNSTWERKE LADEN
+// ================================================
+
 async function loadArtworks() {
   try {
     const {data,error} = await supabaseClient
@@ -569,9 +640,11 @@ async function loadArtworks() {
       .select("id,title,description")
       .order("id");
 
-    if (error) throw error;
+    if(error) throw error;
 
-    artworks = data && data.length ? data : defaultArtworks();
+    artworks = data && data.length
+      ? data
+      : defaultArtworks();
 
   } catch(error) {
     console.error("Fehler beim Laden:",error);
@@ -581,9 +654,9 @@ async function loadArtworks() {
   renderGallery();
 }
 
-// --------------------------------------------------
-// GALERIE
-// --------------------------------------------------
+// ================================================
+// GALERIE ERSTELLEN
+// ================================================
 
 function renderGallery() {
   const gallery = document.getElementById("gallery");
@@ -604,21 +677,23 @@ function renderGallery() {
     };
 
     const caption = document.createElement("p");
-    caption.textContent = artwork.title || `Kunstwerk ${artwork.id}`;
+    caption.textContent =
+      artwork.title || `Kunstwerk ${artwork.id}`;
 
     card.appendChild(img);
     card.appendChild(caption);
 
     card.onclick = () => openModal(artwork.id,img.src);
+
     gallery.appendChild(card);
   });
 
   searchArtworks();
 }
 
-// --------------------------------------------------
+// ================================================
 // SUCHFUNKTION
-// --------------------------------------------------
+// ================================================
 
 function searchArtworks() {
   const query = document.getElementById("searchInput")
@@ -638,6 +713,7 @@ function searchArtworks() {
     ].join(" ").toLowerCase();
 
     const matches = searchable.includes(query);
+
     card.style.display = matches ? "" : "none";
 
     if(matches) visible++;
@@ -647,9 +723,9 @@ function searchArtworks() {
     visible === 0 ? "block" : "none";
 }
 
-// --------------------------------------------------
+// ================================================
 // BILD-GROSSANSICHT
-// --------------------------------------------------
+// ================================================
 
 function openModal(id,source) {
   activeArtworkId = id;
@@ -658,17 +734,24 @@ function openModal(id,source) {
   if(!artwork) return;
 
   document.getElementById("modalImage").src = source;
-  document.getElementById("modalTitle").textContent = artwork.title;
+
+  document.getElementById("modalTitle").textContent =
+    artwork.title;
+
   document.getElementById("modalDescription").textContent =
     artwork.description;
 
   const editor = document.getElementById("adminEditor");
+
   editor.classList.toggle("visible",isAdmin);
 
   if(isAdmin) {
-    document.getElementById("editTitle").value = artwork.title;
+    document.getElementById("editTitle").value =
+      artwork.title;
+
     document.getElementById("editDescription").value =
       artwork.description;
+
     document.getElementById("saveMessage").textContent = "";
   }
 
@@ -676,20 +759,24 @@ function openModal(id,source) {
 }
 
 function closeModal(event) {
-  if(!event ||
+  if(
+    !event ||
     event.target.id === "modal" ||
-    event.target.className === "close") {
+    event.target.className === "close"
+  ) {
     document.getElementById("modal").classList.remove("open");
+    activeArtworkId = null;
   }
 }
 
-// --------------------------------------------------
+// ================================================
 // SEITENNAVIGATION
-// --------------------------------------------------
+// ================================================
 
 function showPage(page) {
   const gallerySection =
     document.getElementById("gallerySection");
+
   const aboutSection =
     document.getElementById("aboutSection");
 
@@ -704,9 +791,9 @@ function showPage(page) {
   window.scrollTo({top:0,behavior:"smooth"});
 }
 
-// --------------------------------------------------
+// ================================================
 // HELL- UND DUNKELMODUS
-// --------------------------------------------------
+// ================================================
 
 function toggleTheme() {
   document.body.classList.toggle("dark");
@@ -727,13 +814,15 @@ function toggleTheme() {
 try {
   if(localStorage.getItem("kunstgalerie-theme") === "dark") {
     document.body.classList.add("dark");
-    document.getElementById("themeButton").textContent = "☀ Hell";
+
+    document.getElementById("themeButton").textContent =
+      "☀ Hell";
   }
 } catch(e) {}
 
-// --------------------------------------------------
-// ADMIN-ANMELDUNG
-// --------------------------------------------------
+// ================================================
+// ADMIN LOGIN
+// ================================================
 
 function openLogin() {
   if(isAdmin) return;
@@ -747,6 +836,10 @@ function openLogin() {
 function closeLogin() {
   document.getElementById("loginOverlay").classList.remove("open");
 }
+
+// ================================================
+// ADMIN BERECHTIGUNG PRÜFEN
+// ================================================
 
 async function checkAdmin(user) {
   isAdmin = false;
@@ -769,28 +862,44 @@ async function checkAdmin(user) {
   document.getElementById("logoutButton").style.display =
     isAdmin ? "inline-block" : "none";
 
-  document.getElementById("adminEditor").classList.toggle(
+  const editor = document.getElementById("adminEditor");
+
+  editor.classList.toggle(
     "visible",
     isAdmin && activeArtworkId !== null
   );
 
-  if(activeArtworkId !== null && isAdmin) {
-    const artwork = artworks.find(a=>a.id===activeArtworkId);
+  if(isAdmin && activeArtworkId !== null) {
+    const artwork = artworks.find(
+      a => a.id === activeArtworkId
+    );
+
     if(artwork) {
-      document.getElementById("editTitle").value = artwork.title;
+      document.getElementById("editTitle").value =
+        artwork.title;
+
       document.getElementById("editDescription").value =
         artwork.description;
     }
   }
 }
 
+// ================================================
+// ANMELDEN
+// ================================================
+
 async function loginAdmin(event) {
   event.preventDefault();
 
-  const email = document.getElementById("loginEmail").value.trim();
-  const password = document.getElementById("loginPassword").value;
+  const email =
+    document.getElementById("loginEmail").value.trim();
 
-  const message = document.getElementById("loginMessage");
+  const password =
+    document.getElementById("loginPassword").value;
+
+  const message =
+    document.getElementById("loginMessage");
+
   message.textContent = "Anmeldung läuft ...";
 
   const {data,error} = await supabaseClient.auth.signInWithPassword({
@@ -808,40 +917,56 @@ async function loginAdmin(event) {
 
   if(!isAdmin) {
     await supabaseClient.auth.signOut();
+
     message.textContent =
       "Dieses Konto besitzt keine Admin-Berechtigung.";
+
     return;
   }
 
   closeLogin();
+
   alert("Du bist jetzt als Admin angemeldet.");
 }
 
+// ================================================
+// ABMELDEN
+// ================================================
+
 async function logoutAdmin() {
   await supabaseClient.auth.signOut();
+
   isAdmin = false;
+  activeArtworkId = null;
 
   document.getElementById("adminEditor").classList.remove("visible");
-  document.getElementById("adminButton").style.display = "inline-block";
-  document.getElementById("logoutButton").style.display = "none";
+
+  document.getElementById("adminButton").style.display =
+    "inline-block";
+
+  document.getElementById("logoutButton").style.display =
+    "none";
+
+  document.getElementById("modal").classList.remove("open");
 
   alert("Du wurdest abgemeldet.");
 }
 
-// --------------------------------------------------
-// TEXTE SPEICHERN
-// --------------------------------------------------
+// ================================================
+// TITEL UND BESCHREIBUNG SPEICHERN
+// ================================================
 
 async function saveArtwork() {
-  if(!isAdmin || activeArtworkId === null) {
-    return;
-  }
+  if(!isAdmin || activeArtworkId === null) return;
 
-  const title = document.getElementById("editTitle").value.trim();
+  const title =
+    document.getElementById("editTitle").value.trim();
+
   const description =
     document.getElementById("editDescription").value.trim();
 
-  const message = document.getElementById("saveMessage");
+  const message =
+    document.getElementById("saveMessage");
 
   if(!title) {
     message.textContent = "Bitte gib einen Titel ein.";
@@ -863,46 +988,57 @@ async function saveArtwork() {
 
   if(error) {
     console.error(error);
+
     message.textContent =
       "Speichern fehlgeschlagen. Bitte überprüfe deine Admin-Rechte.";
+
     return;
   }
 
-  const index = artworks.findIndex(a=>a.id===activeArtworkId);
+  const index = artworks.findIndex(
+    a => a.id === activeArtworkId
+  );
 
   if(index !== -1) {
     artworks[index] = data;
   }
 
-  document.getElementById("modalTitle").textContent = data.title;
+  document.getElementById("modalTitle").textContent =
+    data.title;
+
   document.getElementById("modalDescription").textContent =
     data.description;
 
   renderGallery();
 
-  message.textContent = "Änderungen erfolgreich gespeichert.";
+  message.textContent =
+    "Änderungen erfolgreich gespeichert.";
 }
 
-// --------------------------------------------------
+// ================================================
 // AUTHENTIFIZIERUNG BEIM START
-// --------------------------------------------------
+// ================================================
 
 async function initializeAuth() {
   const {data} = await supabaseClient.auth.getSession();
 
   await checkAdmin(data.session?.user || null);
 
-  supabaseClient.auth.onAuthStateChange((event,session)=>{
-    setTimeout(()=>{
+  supabaseClient.auth.onAuthStateChange((event,session) => {
+    setTimeout(() => {
       checkAdmin(session?.user || null);
     },0);
   });
 }
 
+// ================================================
 // START
+// ================================================
+
 loadArtworks();
 initializeAuth();
 
 </script>
+
 </body>
 </html>
