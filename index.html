@@ -8,236 +8,393 @@
 
 <style>
 :root {
-  --bg: #f3f0e8;
-  --surface: #faf9f5;
-  --text: #343b32;
-  --muted: #77796e;
-  --accent: #66745e;
-  --border: #dedbd0;
+  --bg:#f3f0e8;
+  --surface:#faf9f5;
+  --text:#343b32;
+  --muted:#77796e;
+  --accent:#66745e;
+  --border:#dedbd0;
 }
-
 body.dark {
-  --bg: #191a19;
-  --surface: #252725;
-  --text: #eee9df;
-  --muted: #aaa99e;
-  --accent: #a5b39b;
-  --border: #41443f;
+  --bg:#191a19;
+  --surface:#252725;
+  --text:#eee9df;
+  --muted:#aaa99e;
+  --accent:#a5b39b;
+  --border:#41443f;
 }
-
-* { box-sizing: border-box; }
+* {box-sizing:border-box}
 
 body {
-  margin: 0;
-  background: var(--bg);
-  color: var(--text);
-  font-family: Georgia, serif;
-  transition: background .3s, color .3s;
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:Georgia,serif;
+  transition:background .3s,color .3s;
 }
 
+/* INTRO */
+#intro {
+  position:fixed;
+  inset:0;
+  z-index:20;
+  background:var(--bg);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  padding:25px;
+  animation:introFadeOut 1.2s ease 5s forwards;
+}
+
+.intro-inner {
+  animation:introAppear 1.5s ease both;
+}
+
+.intro-small {
+  color:var(--accent);
+  letter-spacing:3px;
+  font-size:11px;
+  margin-bottom:28px;
+  opacity:0;
+  animation:reveal 1s ease .3s forwards;
+}
+
+.intro-title {
+  font-size:clamp(42px,8vw,78px);
+  font-weight:normal;
+  margin:0;
+  opacity:0;
+  animation:reveal 1.5s ease .8s forwards;
+}
+
+.intro-line {
+  width:0;
+  height:1px;
+  background:var(--accent);
+  margin:25px auto;
+  animation:lineGrow 1.4s ease 1.8s forwards;
+}
+
+.intro-sub {
+  color:var(--muted);
+  letter-spacing:2px;
+  font-size:13px;
+  opacity:0;
+  animation:reveal 1.2s ease 2.3s forwards;
+}
+
+.intro-author {
+  color:var(--muted);
+  margin-top:40px;
+  font-size:14px;
+  opacity:0;
+  animation:reveal 1.2s ease 3s forwards;
+}
+
+@keyframes reveal {
+  from {opacity:0;transform:translateY(20px)}
+  to {opacity:1;transform:translateY(0)}
+}
+@keyframes lineGrow {
+  to {width:90px}
+}
+@keyframes introAppear {
+  from {opacity:0}
+  to {opacity:1}
+}
+@keyframes introFadeOut {
+  to {
+    opacity:0;
+    visibility:hidden;
+    pointer-events:none;
+  }
+}
+
+/* KOPFBEREICH */
 header {
-  padding: 24px 6%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid var(--border);
+  padding:20px 6%;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  border-bottom:1px solid var(--border);
 }
 
 .logo {
-  font-size: 20px;
-  color: var(--text);
-  text-decoration: none;
+  font-size:20px;
+  color:var(--text);
+  text-decoration:none;
 }
 
-button, .button {
-  cursor: pointer;
-  border: 1px solid var(--border);
-  background: var(--surface);
-  color: var(--text);
-  padding: 11px 16px;
-  font-family: inherit;
-  font-size: 14px;
-  text-decoration: none;
-  border-radius: 3px;
+button,.button {
+  cursor:pointer;
+  border:1px solid var(--border);
+  background:var(--surface);
+  color:var(--text);
+  padding:11px 16px;
+  font-family:inherit;
+  font-size:14px;
+  text-decoration:none;
+  border-radius:3px;
 }
 
+/* STARTSEITE */
 .hero {
-  text-align: center;
-  padding: 85px 20px 70px;
+  text-align:center;
+  padding:65px 20px 45px;
 }
 
 .hero h1 {
-  font-size: clamp(38px, 7vw, 65px);
-  font-weight: normal;
-  margin: 0;
+  font-size:clamp(38px,7vw,65px);
+  font-weight:normal;
+  margin:0;
 }
 
 .subtitle {
-  color: var(--muted);
-  letter-spacing: 2px;
-  margin-top: 20px;
-  font-size: 14px;
+  color:var(--muted);
+  letter-spacing:2px;
+  margin-top:18px;
+  font-size:13px;
 }
 
 .artist-name {
-  margin-top: 30px;
-  color: var(--muted);
+  margin-top:25px;
+  color:var(--muted);
 }
 
 nav {
-  display: flex;
-  justify-content: center;
-  gap: 12px;
-  flex-wrap: wrap;
-  padding: 0 15px 45px;
+  display:flex;
+  justify-content:center;
+  gap:12px;
+  flex-wrap:wrap;
+  padding:0 15px 40px;
 }
 
 section {
-  max-width: 1250px;
-  margin: auto;
-  padding: 30px 6% 75px;
+  max-width:1250px;
+  margin:auto;
+  padding:25px 6% 70px;
 }
 
 .section-title {
-  font-size: 32px;
-  font-weight: normal;
-  text-align: center;
-  margin-bottom: 12px;
+  font-size:32px;
+  font-weight:normal;
+  text-align:center;
 }
 
 .section-description {
-  text-align: center;
-  color: var(--muted);
-  margin-bottom: 38px;
+  text-align:center;
+  color:var(--muted);
+  margin-bottom:30px;
 }
 
+/* SUCHFUNKTION */
+.search-wrap {
+  max-width:550px;
+  margin:0 auto 35px;
+}
+
+.search-wrap input {
+  width:100%;
+  padding:15px 17px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  color:var(--text);
+  font-family:inherit;
+  font-size:16px;
+  border-radius:3px;
+  outline:none;
+}
+
+.search-wrap input:focus {
+  border-color:var(--accent);
+}
+
+.search-hint {
+  font-size:12px;
+  color:var(--muted);
+  text-align:center;
+  margin-top:9px;
+}
+
+/* GALERIE */
 .gallery {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-  gap: 22px;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+  gap:22px;
 }
 
 .artwork {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  padding: 10px;
-  cursor: pointer;
-  transition: transform .2s;
+  background:var(--surface);
+  border:1px solid var(--border);
+  padding:10px;
+  cursor:pointer;
+  transition:transform .2s;
 }
 
 .artwork:hover {
-  transform: translateY(-4px);
+  transform:translateY(-4px);
 }
 
 .artwork img {
-  display: block;
-  width: 100%;
-  aspect-ratio: 4 / 5;
-  object-fit: cover;
-  background: var(--bg);
+  display:block;
+  width:100%;
+  aspect-ratio:4/5;
+  object-fit:cover;
+  background:var(--bg);
 }
 
 .artwork p {
-  text-align: center;
-  color: var(--muted);
-  font-size: 14px;
-  margin: 13px 0 5px;
+  text-align:center;
+  color:var(--muted);
+  font-size:14px;
+  margin:13px 0 5px;
 }
 
+.no-results {
+  display:none;
+  text-align:center;
+  color:var(--muted);
+  padding:30px;
+}
+
+/* KÜNSTLERSEITE */
 .panel {
-  display: none;
-  text-align: center;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  padding: 45px 25px;
-  line-height: 1.8;
+  display:none;
+  text-align:center;
+  background:var(--surface);
+  border:1px solid var(--border);
+  padding:45px 25px;
+  line-height:1.8;
 }
 
 .panel.active {
-  display: block;
+  display:block;
 }
 
 #gallerySection.hidden {
-  display: none;
+  display:none;
 }
 
+/* BILD-GROSSANSICHT */
 .modal {
-  display: none;
-  position: fixed;
-  inset: 0;
-  z-index: 10;
-  background: rgba(0,0,0,.92);
-  padding: 25px;
-  align-items: center;
-  justify-content: center;
-  overflow-y: auto;
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:30;
+  background:rgba(0,0,0,.93);
+  padding:25px;
+  align-items:center;
+  justify-content:center;
+  overflow-y:auto;
 }
 
 .modal.open {
-  display: flex;
+  display:flex;
 }
 
 .modal-content {
-  max-width: 850px;
-  width: 100%;
-  text-align: center;
-  color: #fff;
+  max-width:850px;
+  width:100%;
+  text-align:center;
+  color:white;
 }
 
 .modal img {
-  max-width: 100%;
-  max-height: 70vh;
-  object-fit: contain;
+  max-width:100%;
+  max-height:70vh;
+  object-fit:contain;
 }
 
 .modal h2 {
-  font-weight: normal;
+  font-weight:normal;
 }
 
 .close {
-  position: fixed;
-  top: 18px;
-  right: 20px;
-  color: white;
-  background: #333;
-  border: none;
-  font-size: 22px;
+  position:fixed;
+  top:18px;
+  right:20px;
+  color:white;
+  background:#333;
+  border:none;
+  font-size:22px;
 }
 
 footer {
-  text-align: center;
-  padding: 35px 15px;
-  color: var(--muted);
-  border-top: 1px solid var(--border);
-  font-size: 13px;
+  text-align:center;
+  padding:35px 15px;
+  color:var(--muted);
+  border-top:1px solid var(--border);
+  font-size:13px;
 }
 
 @media(max-width:600px) {
-  header { padding: 17px 4%; }
-  .logo { font-size: 16px; }
-  .gallery { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-  .artwork { padding: 6px; }
+  header {padding:17px 4%}
+  .logo {font-size:16px}
+  .gallery {
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:12px;
+  }
+  .artwork {padding:6px}
+}
+
+@media(prefers-reduced-motion:reduce) {
+  #intro {
+    animation:none;
+    display:none;
+  }
+  .intro-title,.intro-sub,.intro-author,.intro-small {
+    opacity:1;
+    animation:none;
+  }
 }
 </style>
 </head>
 
 <body>
 
+<!-- EINMALIGES INTRO -->
+<div id="intro">
+  <div class="intro-inner">
+    <div class="intro-small">
+      BARBARA SCHÜTZE · DIGITALE AUSSTELLUNG
+    </div>
+    <h1 class="intro-title">Wort trifft Objekt</h1>
+    <div class="intro-line"></div>
+    <div class="intro-sub">
+      FUNDSTÜCKE · FIGUREN · GEDANKEN
+    </div>
+    <div class="intro-author">
+      Eine Ausstellung von<br>Barbara Schütze
+    </div>
+  </div>
+</div>
+
 <header>
-  <a class="logo" href="#" onclick="showPage('gallery')">Wort trifft Objekt</a>
-  <button onclick="toggleTheme()" id="themeButton">☾ Dunkel</button>
+  <a class="logo" href="#" onclick="showPage('gallery');return false">
+    Wort trifft Objekt
+  </a>
+  <button onclick="toggleTheme()" id="themeButton">
+    ☾ Dunkel
+  </button>
 </header>
 
 <div class="hero">
   <h1>Wort trifft Objekt</h1>
-  <div class="subtitle">FUNDSTÜCKE · FIGUREN · GEDANKEN</div>
-  <div class="artist-name">Eine digitale Ausstellung von<br>Barbara Schütze</div>
+  <div class="subtitle">
+    FUNDSTÜCKE · FIGUREN · GEDANKEN
+  </div>
+  <div class="artist-name">
+    Eine digitale Ausstellung von<br>Barbara Schütze
+  </div>
 </div>
 
 <nav>
   <button onclick="showPage('gallery')">Galerie</button>
   <button onclick="showPage('about')">Über die Künstlerin</button>
-  <a class="button" href="./Kunstkatalog.pdf" target="_blank">PDF-Katalog</a>
+  <a class="button" href="./Kunstkatalog.pdf" target="_blank">
+    PDF-Katalog
+  </a>
 </nav>
 
 <section id="gallerySection">
@@ -245,14 +402,30 @@ footer {
   <p class="section-description">
     Fünfzig Werke – fünfzig eigene Perspektiven.
   </p>
+
+  <div class="search-wrap">
+    <input
+      type="search"
+      id="searchInput"
+      placeholder="⌕ Kunstwerke suchen, z. B. Kunstwerk 12 ..."
+      aria-label="Kunstwerke suchen"
+      oninput="searchArtworks()"
+    >
+    <div class="search-hint">
+      Durchsuche die Ausstellung nach Nummer oder Titel.
+    </div>
+  </div>
+
   <div class="gallery" id="gallery"></div>
+
+  <div class="no-results" id="noResults">
+    Keine passenden Kunstwerke gefunden.
+  </div>
 </section>
 
 <section id="aboutSection" class="panel">
   <h2 class="section-title">Über die Künstlerin</h2>
-  <p>
-    Barbara Schütze
-  </p>
+  <p><strong>Barbara Schütze</strong></p>
   <p>
     Ein Einblick in die Künstlerin, ihre Gedanken und ihre kreative Arbeit.
     Jedes Objekt erzählt seine eigene Geschichte und eröffnet einen neuen
@@ -275,16 +448,22 @@ footer {
   <div class="modal-content">
     <img id="modalImage" src="" alt="">
     <h2 id="modalTitle"></h2>
-    <p id="modalDescription">Weitere Informationen zum Kunstwerk folgen.</p>
+    <p id="modalDescription">
+      Weitere Informationen zum Kunstwerk folgen.
+    </p>
   </div>
 </div>
 
 <script>
+
+// 50 KUNSTWERKE AUTOMATISCH LADEN
 const gallery = document.getElementById("gallery");
 
 for (let i = 1; i <= 50; i++) {
   const card = document.createElement("div");
   card.className = "artwork";
+  card.dataset.number = i;
+  card.dataset.title = `Kunstwerk ${i}`;
 
   const img = document.createElement("img");
   img.src = `./bilder/bild${i}.jpg`;
@@ -301,28 +480,56 @@ for (let i = 1; i <= 50; i++) {
   card.appendChild(img);
   card.appendChild(caption);
 
-  card.onclick = () => openModal(i, img.src);
-
+  card.onclick = () => openModal(i,img.src);
   gallery.appendChild(card);
 }
 
-function openModal(number, source) {
+// SUCHFUNKTION
+function searchArtworks() {
+  const query = document.getElementById("searchInput")
+    .value.trim().toLowerCase();
+
+  const cards = document.querySelectorAll(".artwork");
+  let visible = 0;
+
+  cards.forEach(card => {
+    const matches =
+      card.dataset.title.toLowerCase().includes(query) ||
+      card.dataset.number.includes(query);
+
+    card.style.display = matches ? "" : "none";
+
+    if (matches) visible++;
+  });
+
+  document.getElementById("noResults").style.display =
+    visible === 0 ? "block" : "none";
+}
+
+// GROSSANSICHT
+function openModal(number,source) {
   document.getElementById("modalImage").src = source;
   document.getElementById("modalTitle").textContent =
     `Kunstwerk ${number}`;
+
   document.getElementById("modal").classList.add("open");
 }
 
 function closeModal(event) {
-  if (!event || event.target.id === "modal" ||
+  if (!event ||
+      event.target.id === "modal" ||
       event.target.className === "close") {
     document.getElementById("modal").classList.remove("open");
   }
 }
 
+// GALERIE UND KÜNSTLERSEITE
 function showPage(page) {
-  const gallerySection = document.getElementById("gallerySection");
-  const aboutSection = document.getElementById("aboutSection");
+  const gallerySection =
+    document.getElementById("gallerySection");
+
+  const aboutSection =
+    document.getElementById("aboutSection");
 
   if (page === "about") {
     gallerySection.classList.add("hidden");
@@ -332,27 +539,36 @@ function showPage(page) {
     aboutSection.classList.remove("active");
   }
 
-  window.scrollTo({top: 0, behavior: "smooth"});
+  window.scrollTo({top:0,behavior:"smooth"});
 }
 
+// HELL- UND DUNKELMODUS
 function toggleTheme() {
   document.body.classList.toggle("dark");
+
   const dark = document.body.classList.contains("dark");
 
   document.getElementById("themeButton").textContent =
     dark ? "☀ Hell" : "☾ Dunkel";
 
   try {
-    localStorage.setItem("kunstgalerie-theme", dark ? "dark" : "light");
+    localStorage.setItem(
+      "kunstgalerie-theme",
+      dark ? "dark" : "light"
+    );
   } catch(e) {}
 }
 
+// GESPEICHERTES DESIGN LADEN
 try {
   if (localStorage.getItem("kunstgalerie-theme") === "dark") {
     document.body.classList.add("dark");
-    document.getElementById("themeButton").textContent = "☀ Hell";
+
+    document.getElementById("themeButton").textContent =
+      "☀ Hell";
   }
 } catch(e) {}
+
 </script>
 
 </body>
