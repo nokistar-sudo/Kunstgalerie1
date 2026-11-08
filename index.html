@@ -294,7 +294,7 @@ section {
   inset:0;
   z-index:30;
   background:rgba(0,0,0,.93);
-  padding:25px;
+  padding:75px 25px 30px;
   align-items:center;
   justify-content:center;
   overflow-y:auto;
@@ -305,25 +305,84 @@ section {
   width:100%;
   text-align:center;
   color:white;
+  margin:auto;
 }
 .modal img {
   max-width:100%;
   max-height:65vh;
   object-fit:contain;
 }
-.modal h2 {font-weight:normal}
+.modal h2 {
+  font-weight:normal;
+  margin:20px 0 10px;
+}
 .modal-description {
   white-space:pre-wrap;
   line-height:1.7;
+  margin:0 auto 20px;
+  max-width:700px;
 }
+
+/* VERBESSERTER SCHLIESS-BUTTON */
 .close {
   position:fixed;
-  top:18px;
-  right:20px;
+  top:calc(18px + env(safe-area-inset-top));
+  right:calc(18px + env(safe-area-inset-right));
+  z-index:35;
+  width:44px;
+  height:44px;
+  padding:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
   color:white;
-  background:#333;
-  border:none;
-  font-size:22px;
+  background:rgba(255,255,255,.12);
+  border:1px solid rgba(255,255,255,.28);
+  border-radius:50%;
+  font-family:Arial,sans-serif;
+  font-size:27px;
+  font-weight:300;
+  line-height:1;
+  transition:background .2s,border-color .2s,transform .2s;
+}
+.close:hover {
+  background:rgba(255,255,255,.23);
+  border-color:rgba(255,255,255,.55);
+  transform:rotate(90deg);
+}
+
+/* KUNSTWERK TEILEN */
+.share-area {
+  margin:25px auto 30px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:10px;
+}
+.share-button {
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:9px;
+  padding:11px 20px;
+  color:#eee9df;
+  background:transparent;
+  border:1px solid rgba(238,233,223,.45);
+  border-radius:2px;
+  font-family:Georgia,serif;
+  font-size:14px;
+  letter-spacing:.3px;
+  transition:background .2s,border-color .2s;
+}
+.share-button:hover {
+  background:rgba(255,255,255,.10);
+  border-color:rgba(238,233,223,.8);
+}
+.share-message {
+  min-height:17px;
+  color:rgba(238,233,223,.7);
+  font-size:12px;
+  line-height:1.5;
 }
 
 /* ARTWORK ADMIN */
@@ -491,6 +550,26 @@ footer {
     gap:12px;
   }
   .artwork {padding:6px}
+
+  .modal {
+    padding:75px 15px 25px;
+    align-items:flex-start;
+  }
+  .modal-content {
+    margin:auto;
+  }
+  .modal img {
+    max-height:58vh;
+  }
+  .close {
+    top:calc(12px + env(safe-area-inset-top));
+    right:calc(12px + env(safe-area-inset-right));
+    width:42px;
+    height:42px;
+  }
+  .share-area {
+    margin:22px auto 25px;
+  }
 }
 @media(prefers-reduced-motion:reduce) {
   #intro {animation:none;display:none}
@@ -498,6 +577,7 @@ footer {
     opacity:1;
     animation:none;
   }
+  .close,.share-button {transition:none}
 }
 </style>
 </head>
@@ -607,7 +687,6 @@ footer {
     </a>
   </p>
 
-  <!-- Nur für angemeldete Admins sichtbar -->
   <div id="artistEditArea" style="display:none">
     <button onclick="toggleArtistEditor()">
       Künstlerbeschreibung bearbeiten
@@ -642,12 +721,33 @@ footer {
 </footer>
 
 <div class="modal" id="modal" onclick="closeModal(event)">
-  <button class="close" onclick="closeModal(event)">×</button>
+
+  <button class="close"
+          type="button"
+          aria-label="Vollansicht schließen"
+          onclick="closeModal(event)">
+    ×
+  </button>
 
   <div class="modal-content" onclick="event.stopPropagation()">
     <img id="modalImage" src="" alt="">
     <h2 id="modalTitle"></h2>
     <p id="modalDescription" class="modal-description"></p>
+
+    <!-- Teilen-Funktion -->
+    <div class="share-area">
+      <button class="share-button"
+              id="shareArtworkButton"
+              type="button"
+              onclick="shareArtwork()">
+        <span aria-hidden="true">↗</span>
+        Kunstwerk teilen
+      </button>
+
+      <div id="shareMessage"
+           class="share-message"
+           aria-live="polite"></div>
+    </div>
 
     <div id="adminEditor" class="admin-panel">
       <h3>Kunstwerk bearbeiten</h3>
@@ -737,8 +837,7 @@ const SUPABASE_URL =
 const SUPABASE_KEY =
   "sb_publishable_qtIp3RDWWXOSKx2Mu-vxvA_tyabauCd";
 
-// E-Mail-Adresse für den späteren zweiten Admin.
-// Die tatsächliche Berechtigung wird ausschließlich
+// Die tatsächliche Admin-Berechtigung wird ausschließlich
 // über die admins-Tabelle in Supabase geprüft.
 const SECOND_ADMIN_EMAIL = "ba.schuetze@web.de";
 
@@ -759,18 +858,16 @@ let isAdmin = false;
 let activeArtworkId = null;
 let recoveryActive = false;
 
-let artistProfile = {
-  id:1,
-  title:"Über die Künstlerin",
-  description:"Ein Einblick in die Künstlerin, ihre Gedanken und ihre kreative Arbeit. Jedes Objekt erzählt seine eigene Geschichte und eröffnet einen neuen Blick auf die kleinen und großen Dinge des Lebens."
-};
-
 function defaultArtworks() {
   return Array.from({length:50},(_,i)=>({
     id:i+1,
     title:`Kunstwerk ${i+1}`,
     description:"Beschreibung folgt."
   }));
+}
+
+function getArtworkById(id) {
+  return artworks.find(a => Number(a.id) === Number(id));
 }
 
 /* KUNSTWERKE LADEN */
@@ -793,6 +890,9 @@ async function loadArtworks() {
   }
 
   renderGallery();
+
+  // Prüfen, ob ein geteilter Direktlink geöffnet wurde.
+  openArtworkFromUrl();
 }
 
 /* KÜNSTLERPROFIL LADEN */
@@ -816,6 +916,12 @@ async function loadArtistProfile() {
 
   renderArtistProfile();
 }
+
+let artistProfile = {
+  id:1,
+  title:"Über die Künstlerin",
+  description:"Ein Einblick in die Künstlerin, ihre Gedanken und ihre kreative Arbeit. Jedes Objekt erzählt seine eigene Geschichte und eröffnet einen neuen Blick auf die kleinen und großen Dinge des Lebens."
+};
 
 /* KÜNSTLERPROFIL ANZEIGEN */
 function renderArtistProfile() {
@@ -965,15 +1071,24 @@ function searchArtworks() {
 
 /* BILD-MODAL */
 function openModal(id,source) {
-  activeArtworkId = id;
-
-  const artwork = artworks.find(a => a.id === id);
+  const artwork = getArtworkById(id);
   if(!artwork) return;
 
-  document.getElementById("modalImage").src = source;
-  document.getElementById("modalTitle").textContent = artwork.title;
+  activeArtworkId = Number(id);
+
+  document.getElementById("modalImage").src =
+    source || `./bilder/bild${artwork.id}.jpg`;
+
+  document.getElementById("modalImage").alt =
+    artwork.title || `Kunstwerk ${artwork.id}`;
+
+  document.getElementById("modalTitle").textContent =
+    artwork.title || `Kunstwerk ${artwork.id}`;
+
   document.getElementById("modalDescription").textContent =
-    artwork.description;
+    artwork.description || "";
+
+  document.getElementById("shareMessage").textContent = "";
 
   const editor = document.getElementById("adminEditor");
   editor.classList.toggle("visible",isAdmin);
@@ -988,11 +1103,105 @@ function openModal(id,source) {
   document.getElementById("modal").classList.add("open");
 }
 
+/* GETEILTEN DIREKTLINK ÖFFNEN */
+function openArtworkFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  const artworkId = Number(params.get("bild"));
+
+  if(!Number.isInteger(artworkId) || artworkId < 1) return;
+
+  const artwork = getArtworkById(artworkId);
+  if(!artwork) return;
+
+  showPage("gallery");
+
+  openModal(
+    artwork.id,
+    `./bilder/bild${artwork.id}.jpg`
+  );
+}
+
+/* LINK FÜR EIN KUNSTWERK ERSTELLEN */
+function getArtworkShareUrl(id) {
+  const url = new URL(window.location.href);
+
+  url.search = "";
+  url.hash = "";
+  url.searchParams.set("bild",String(id));
+
+  return url.toString();
+}
+
+/* KUNSTWERK TEILEN */
+async function shareArtwork() {
+  if(activeArtworkId === null) return;
+
+  const artwork = getArtworkById(activeArtworkId);
+  if(!artwork) return;
+
+  const shareUrl = getArtworkShareUrl(activeArtworkId);
+  const shareTitle = artwork.title || `Kunstwerk ${activeArtworkId}`;
+
+  const shareData = {
+    title: `${shareTitle} – Wort trifft Objekt`,
+    text: `Entdecke dieses Kunstwerk aus der Ausstellung „Wort trifft Objekt“ von Barbara Schütze.`,
+    url:shareUrl
+  };
+
+  const message = document.getElementById("shareMessage");
+  message.textContent = "";
+
+  // Auf unterstützten Geräten das normale Teilen-Menü öffnen.
+  if(navigator.share) {
+    try {
+      await navigator.share(shareData);
+      message.textContent = "Teilen-Menü geöffnet.";
+      return;
+    } catch(error) {
+      // Wenn der Nutzer das Teilen-Menü schließt,
+      // wird keine Fehlermeldung angezeigt.
+      if(error.name === "AbortError") return;
+
+      console.error("Teilen nicht möglich:",error);
+    }
+  }
+
+  // Alternative: Link in die Zwischenablage kopieren.
+  try {
+    await navigator.clipboard.writeText(shareUrl);
+    message.textContent = "Link wurde kopiert. Du kannst ihn jetzt verschicken.";
+    return;
+  } catch(error) {
+    console.error("Kopieren nicht möglich:",error);
+  }
+
+  // Fallback für Browser ohne Clipboard-Unterstützung.
+  const temporaryInput = document.createElement("textarea");
+  temporaryInput.value = shareUrl;
+  temporaryInput.style.position = "fixed";
+  temporaryInput.style.opacity = "0";
+  document.body.appendChild(temporaryInput);
+  temporaryInput.select();
+
+  try {
+    const copied = document.execCommand("copy");
+
+    message.textContent = copied
+      ? "Link wurde kopiert. Du kannst ihn jetzt verschicken."
+      : "Bitte kopiere diesen Link manuell: " + shareUrl;
+
+  } catch(error) {
+    message.textContent = "Bitte kopiere diesen Link manuell: " + shareUrl;
+  }
+
+  temporaryInput.remove();
+}
+
 function closeModal(event) {
   if(
     !event ||
     event.target.id === "modal" ||
-    event.target.className === "close"
+    event.target.classList.contains("close")
   ) {
     document.getElementById("modal").classList.remove("open");
     activeArtworkId = null;
@@ -1078,7 +1287,6 @@ async function checkAdmin(user) {
   document.getElementById("logoutButton").style.display =
     isAdmin ? "inline-block" : "none";
 
-  // Künstler-Bearbeitung nur für angemeldete Admins
   document.getElementById("artistEditArea").style.display =
     isAdmin ? "block" : "none";
 
@@ -1094,9 +1302,7 @@ async function checkAdmin(user) {
   );
 
   if(isAdmin && activeArtworkId !== null) {
-    const artwork = artworks.find(
-      a => a.id === activeArtworkId
-    );
+    const artwork = getArtworkById(activeArtworkId);
 
     if(artwork) {
       document.getElementById("editTitle").value = artwork.title;
@@ -1288,6 +1494,8 @@ async function saveArtwork() {
   document.getElementById("modalTitle").textContent = data.title;
   document.getElementById("modalDescription").textContent =
     data.description;
+
+  document.getElementById("modalImage").alt = data.title;
 
   renderGallery();
 
