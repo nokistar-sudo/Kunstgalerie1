@@ -8,714 +8,168 @@
 
 <style>
 :root {
-  --bg:#f3f0e8;
-  --surface:#faf9f5;
-  --text:#343b32;
-  --muted:#77796e;
-  --accent:#66745e;
-  --border:#dedbd0;
+  --bg:#f3f0e8;--surface:#faf9f5;--text:#343b32;
+  --muted:#77796e;--accent:#66745e;--border:#dedbd0;
 }
 body.dark {
-  --bg:#191a19;
-  --surface:#252725;
-  --text:#eee9df;
-  --muted:#aaa99e;
-  --accent:#a5b39b;
-  --border:#41443f;
+  --bg:#191a19;--surface:#252725;--text:#eee9df;
+  --muted:#aaa99e;--accent:#a5b39b;--border:#41443f;
 }
-* {box-sizing:border-box}
-body {
-  margin:0;
-  background:var(--bg);
-  color:var(--text);
-  font-family:Georgia,serif;
-  transition:background .3s,color .3s;
+*{box-sizing:border-box}
+body{
+  margin:0;background:var(--bg);color:var(--text);
+  font-family:Georgia,serif;transition:background .3s,color .3s;
 }
-button,.button {
-  cursor:pointer;
-  border:1px solid var(--border);
-  background:var(--surface);
-  color:var(--text);
-  padding:11px 16px;
-  font-family:inherit;
-  font-size:14px;
-  text-decoration:none;
-  border-radius:3px;
+button,.button{
+  cursor:pointer;border:1px solid var(--border);
+  background:var(--surface);color:var(--text);
+  padding:11px 16px;font-family:inherit;font-size:14px;
+  text-decoration:none;border-radius:3px;
 }
-button:hover,.button:hover {border-color:var(--accent)}
-
-/* INTRO */
-#intro {
-  position:fixed;
-  inset:0;
-  z-index:50;
-  background:var(--bg);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  text-align:center;
-  padding:25px;
-  animation:introFadeOut 1.2s ease 5s forwards;
+button:hover,.button:hover{border-color:var(--accent)}
+header{
+  padding:20px 6%;display:flex;justify-content:space-between;
+  align-items:center;gap:12px;border-bottom:1px solid var(--border);
 }
-.intro-inner {animation:introAppear 1.5s ease both}
-.intro-small {
-  color:var(--accent);
-  letter-spacing:3px;
-  font-size:11px;
-  margin-bottom:28px;
-  opacity:0;
-  animation:reveal 1s ease .3s forwards;
-}
-.intro-title {
-  font-size:clamp(42px,8vw,78px);
-  font-weight:normal;
-  margin:0;
-  opacity:0;
-  animation:reveal 1.5s ease .8s forwards;
-}
-.intro-line {
-  width:0;
-  height:1px;
-  background:var(--accent);
-  margin:25px auto;
-  animation:lineGrow 1.4s ease 1.8s forwards;
-}
-.intro-sub {
-  color:var(--muted);
-  letter-spacing:2px;
-  font-size:13px;
-  opacity:0;
-  animation:reveal 1.2s ease 2.3s forwards;
-}
-.intro-author {
-  color:var(--muted);
-  margin-top:40px;
-  font-size:14px;
-  opacity:0;
-  animation:reveal 1.2s ease 3s forwards;
-}
-@keyframes reveal {
-  from {opacity:0;transform:translateY(20px)}
-  to {opacity:1;transform:translateY(0)}
-}
-@keyframes lineGrow {to {width:90px}}
-@keyframes introAppear {
-  from {opacity:0}
-  to {opacity:1}
-}
-@keyframes introFadeOut {
-  to {opacity:0;visibility:hidden;pointer-events:none}
-}
-
-/* HEADER */
-header {
-  padding:20px 6%;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:12px;
-  border-bottom:1px solid var(--border);
-}
-.logo {
-  font-size:20px;
-  color:var(--text);
-  text-decoration:none;
-}
-.header-actions {
-  display:flex;
-  gap:8px;
-  flex-wrap:wrap;
-  justify-content:flex-end;
-  align-items:center;
-}
-.header-actions button {white-space:nowrap}
-
-/* HERO */
-.hero {
-  text-align:center;
-  padding:65px 20px 45px;
-}
-.hero h1 {
-  font-size:clamp(38px,7vw,65px);
-  font-weight:normal;
-  margin:0;
-}
-.subtitle {
-  color:var(--muted);
-  letter-spacing:2px;
-  margin-top:18px;
-  font-size:13px;
-}
-.artist-name {
-  margin-top:25px;
-  color:var(--muted);
-}
-
-/* NAVIGATION */
-nav {
-  display:flex;
-  justify-content:center;
-  gap:12px;
-  flex-wrap:wrap;
+.logo{font-size:20px;color:var(--text);text-decoration:none}
+.header-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.hero{text-align:center;padding:65px 20px 45px}
+.hero h1{font-size:clamp(38px,7vw,65px);font-weight:normal;margin:0}
+.subtitle{color:var(--muted);letter-spacing:2px;margin-top:18px;font-size:13px}
+.artist-name{margin-top:25px;color:var(--muted)}
+nav{
+  display:flex;justify-content:center;gap:12px;flex-wrap:wrap;
   padding:0 15px 40px;
 }
-
-/* CONTENT */
-section {
-  max-width:1250px;
-  margin:auto;
-  padding:25px 6% 70px;
-}
-.section-title {
-  font-size:32px;
-  font-weight:normal;
-  text-align:center;
-}
-.section-description {
-  text-align:center;
-  color:var(--muted);
-  margin-bottom:30px;
-}
-
-/* SEARCH */
-.search-wrap {
-  max-width:550px;
-  margin:0 auto 35px;
-}
-.search-wrap input {
-  width:100%;
-  padding:15px 17px;
-  background:var(--surface);
-  border:1px solid var(--border);
-  color:var(--text);
-  font-family:inherit;
-  font-size:16px;
-  border-radius:3px;
-}
-.search-hint {
-  font-size:12px;
-  color:var(--muted);
-  text-align:center;
-  margin-top:9px;
-}
-
-/* GALLERY */
-.gallery {
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
-  gap:22px;
-}
-.artwork {
-  background:var(--surface);
-  border:1px solid var(--border);
-  padding:10px;
-  cursor:pointer;
-  transition:transform .2s;
-}
-.artwork:hover {transform:translateY(-4px)}
-.artwork img {
-  display:block;
-  width:100%;
-  aspect-ratio:4/5;
-  object-fit:cover;
-  background:var(--bg);
-}
-.artwork p {
-  text-align:center;
-  color:var(--muted);
-  font-size:14px;
-  margin:13px 0 5px;
-}
-.no-results {
-  display:none;
-  text-align:center;
-  color:var(--muted);
-  padding:30px;
-}
-
-/* ABOUT */
-.panel {
-  display:none;
-  text-align:center;
-  background:var(--surface);
-  border:1px solid var(--border);
-  padding:45px 25px;
-  line-height:1.8;
-}
-.panel.active {display:block}
-#gallerySection.hidden {display:none}
-
-/* ARTIST EDITOR */
-.artist-editor {
-  display:none;
-  max-width:650px;
-  margin:35px auto 0;
-  padding:22px;
-  background:var(--bg);
-  border:1px solid var(--border);
-  text-align:left;
-}
-.artist-editor.visible {display:block}
-.artist-editor h3 {
-  font-weight:normal;
-  text-align:center;
-}
-.artist-editor label {
-  display:block;
-  margin:15px 0 6px;
-  font-size:14px;
-}
-.artist-editor input,
-.artist-editor textarea {
-  width:100%;
-  padding:12px;
-  border:1px solid var(--border);
-  background:var(--surface);
-  color:var(--text);
-  font-family:inherit;
-  font-size:15px;
-  border-radius:3px;
-}
-.artist-editor textarea {
-  min-height:180px;
-  resize:vertical;
-}
-.artist-message {
-  font-size:13px;
-  color:var(--muted);
-  text-align:center;
-  margin-top:12px;
-}
-
-/* IMAGE MODAL */
-.modal {
-  display:none;
-  position:fixed;
-  inset:0;
-  z-index:30;
-  background:rgba(0,0,0,.93);
-  padding:75px 25px 30px;
-  align-items:center;
-  justify-content:center;
-  overflow-y:auto;
-}
-.modal.open {display:flex}
-.modal-content {
-  max-width:950px;
-  width:100%;
-  text-align:center;
-  color:white;
-  margin:auto;
-}
-.modal img {
-  max-width:100%;
-  max-height:65vh;
-  object-fit:contain;
-}
-.modal h2 {
-  font-weight:normal;
-  margin:20px 0 10px;
-}
-.modal-description {
-  white-space:pre-wrap;
-  line-height:1.7;
-  margin:0 auto 20px;
-  max-width:700px;
-}
-
-/* SCHLIESS-BUTTON */
-.close {
-  position:fixed;
-  top:calc(18px + env(safe-area-inset-top));
-  right:calc(18px + env(safe-area-inset-right));
-  z-index:35;
-  width:44px;
-  height:44px;
-  padding:0;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  color:white;
-  background:rgba(255,255,255,.12);
-  border:1px solid rgba(255,255,255,.28);
-  border-radius:50%;
-  font-family:Arial,sans-serif;
-  font-size:27px;
-  font-weight:300;
-  line-height:1;
-  transition:background .2s,border-color .2s,transform .2s;
-}
-.close:hover {
-  background:rgba(255,255,255,.23);
-  border-color:rgba(255,255,255,.55);
-  transform:rotate(90deg);
-}
-
-/* BILD UND PFEIL-NAVIGATION */
-.artwork-stage {
-  display:grid;
-  grid-template-columns:58px minmax(0,1fr) 58px;
-  align-items:stretch;
-  gap:12px;
-  width:100%;
-  max-width:950px;
-  margin:0 auto;
-}
-
-.artwork-image-wrap {
-  min-width:0;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-
-.artwork-image-wrap img {
-  display:block;
-  max-width:100%;
-  max-height:65vh;
-  width:auto;
-  height:auto;
-  object-fit:contain;
-}
-
-/* BILDPFEILE */
-.artwork-arrow {
-  width:48px;
-  height:48px;
-  padding:0;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  color:#eee9df;
-  background:rgba(255,255,255,.06);
-  border:1px solid rgba(238,233,223,.45);
-  border-radius:50%;
-  transition:background .2s,border-color .2s,transform .2s;
-}
-
-.artwork-arrow:hover {
-  background:rgba(255,255,255,.16);
-  border-color:rgba(238,233,223,.9);
-}
-
-.artwork-arrow.previous {
-  align-self:center;
-}
-
-.artwork-arrow.previous:hover {
-  transform:translateX(-3px);
-}
-
-.artwork-side-actions {
-  position:relative;
-  align-self:stretch;
-  min-height:100%;
-}
-
-/* RECHTER PFEIL EXAKT AUF BILDMITTE */
-.artwork-arrow.next {
-  position:absolute;
-  top:50%;
-  left:50%;
-  transform:translate(-50%,-50%);
-}
-
-.artwork-arrow.next:hover {
-  transform:translate(-50%,-50%) translateX(3px);
-}
-
-.artwork-arrow:disabled {
-  opacity:.22;
-  cursor:default;
-}
-
-.artwork-arrow svg {
-  width:21px;
-  height:21px;
-  stroke:currentColor;
-  stroke-width:1.5;
-  fill:none;
-  stroke-linecap:round;
-  stroke-linejoin:round;
-}
-
-/* TEILEN UND LINK KOPIEREN */
-.icon-action {
-  position:absolute;
-  left:50%;
-  width:42px;
-  height:42px;
-  padding:0;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  color:#eee9df;
-  background:rgba(255,255,255,.06);
-  border:1px solid rgba(238,233,223,.45);
-  border-radius:50%;
-  transform:translateX(-50%);
-  transition:background .2s,border-color .2s;
-}
-
-#shareArtworkButton {
-  top:calc(50% + 43px);
-}
-
-#copyArtworkButton {
-  top:calc(50% + 93px);
-}
-
-.icon-action:hover {
-  background:rgba(255,255,255,.16);
-  border-color:rgba(238,233,223,.9);
-}
-
-.icon-action svg {
-  width:18px;
-  height:18px;
-  stroke:currentColor;
-  stroke-width:1.6;
-  fill:none;
-  stroke-linecap:round;
-  stroke-linejoin:round;
-}
-
-/* BILDZÄHLER */
-.artwork-counter {
-  margin-top:14px;
-  color:rgba(238,233,223,.62);
-  font-size:11px;
-  letter-spacing:1.7px;
-  text-align:center;
-}
-
-/* RÜCKMELDUNG BEIM TEILEN */
-.share-message {
-  min-height:18px;
-  margin:12px auto 0;
-  color:rgba(238,233,223,.72);
-  font-size:12px;
-  line-height:1.5;
-  text-align:center;
-}
-
-/* ARTWORK ADMIN */
-.admin-panel {
-  display:none;
-  max-width:600px;
-  margin:25px auto;
-  padding:22px;
-  background:var(--surface);
-  color:var(--text);
-  border:1px solid var(--border);
-  text-align:left;
-}
-.admin-panel.visible {display:block}
-.admin-panel h3 {
-  font-weight:normal;
-  text-align:center;
-}
-.admin-panel label {
-  display:block;
-  margin:15px 0 6px;
-  font-size:14px;
-}
-.admin-panel input,
-.admin-panel textarea,
-.login-box input {
-  width:100%;
-  padding:12px;
-  border:1px solid var(--border);
-  background:var(--bg);
-  color:var(--text);
-  font-family:inherit;
-  font-size:15px;
-  border-radius:3px;
-}
-.admin-panel textarea {
-  min-height:130px;
-  resize:vertical;
-}
-.admin-message {
-  font-size:13px;
-  color:var(--muted);
-  text-align:center;
-  margin-top:12px;
-}
-
-/* LOGIN */
-.login-overlay {
-  display:none;
-  position:fixed;
-  inset:0;
-  z-index:60;
-  background:rgba(0,0,0,.75);
-  align-items:center;
-  justify-content:center;
-  padding:20px;
-}
-.login-overlay.open {display:flex}
-.login-box {
-  width:100%;
-  max-width:420px;
-  background:var(--surface);
-  color:var(--text);
-  padding:30px;
-  border:1px solid var(--border);
-}
-.login-box h2 {
-  font-weight:normal;
-  text-align:center;
-}
-.login-box label {
-  display:block;
-  margin:15px 0 6px;
-  font-size:14px;
-}
-.login-box button {
-  width:100%;
-  margin-top:15px;
-}
-.login-message {
-  font-size:13px;
-  text-align:center;
-  color:var(--muted);
-  line-height:1.5;
-}
-
-/* PASSWORT ZURÜCKSETZEN */
-.recovery-overlay {
-  display:none;
-  position:fixed;
-  inset:0;
-  z-index:80;
-  background:rgba(0,0,0,.82);
-  align-items:center;
-  justify-content:center;
-  padding:20px;
-}
-.recovery-overlay.open {display:flex}
-.recovery-box {
-  width:100%;
-  max-width:440px;
-  background:var(--surface);
-  color:var(--text);
-  padding:30px;
-  border:1px solid var(--border);
-}
-.recovery-box h2 {
-  font-weight:normal;
-  text-align:center;
-}
-.recovery-box p {
-  color:var(--muted);
-  font-size:14px;
-  line-height:1.6;
-  text-align:center;
-}
-.recovery-box label {
-  display:block;
-  margin:16px 0 6px;
-  font-size:14px;
-}
-.recovery-box input {
-  width:100%;
-  padding:12px;
-  border:1px solid var(--border);
-  background:var(--bg);
-  color:var(--text);
-  font-family:inherit;
-  font-size:15px;
-  border-radius:3px;
-}
-.recovery-box button {
-  width:100%;
-  margin-top:18px;
-}
-.recovery-message {
-  font-size:13px;
-  line-height:1.5;
-  text-align:center;
-  color:var(--muted);
-  margin-top:15px;
-}
-
-footer {
-  text-align:center;
-  padding:35px 15px;
-  color:var(--muted);
-  border-top:1px solid var(--border);
-  font-size:13px;
-}
-
-/* MOBILE */
-@media(max-width:600px) {
-  header {
-    padding:14px 4%;
-    flex-wrap:wrap;
-  }
-  .logo {font-size:16px}
-  .header-actions {gap:6px}
-  .header-actions button {
-    padding:9px 10px;
-    font-size:12px;
-  }
-  .gallery {
-    grid-template-columns:repeat(2,minmax(0,1fr));
-    gap:12px;
-  }
-  .artwork {padding:6px}
-  .modal {
-    padding:75px 15px 25px;
-    align-items:flex-start;
-  }
-  .modal-content {margin:auto}
-  .artwork-stage {
-    grid-template-columns:42px minmax(0,1fr) 42px;
-    gap:5px;
-  }
-  .artwork-image-wrap img {
-    max-height:58vh;
-  }
-  .artwork-arrow {
-    width:38px;
-    height:38px;
-  }
-  .artwork-arrow svg {
-    width:18px;
-    height:18px;
-  }
-  .icon-action {
-    width:36px;
-    height:36px;
-  }
-  .icon-action svg {
-    width:16px;
-    height:16px;
-  }
-  #shareArtworkButton {
-    top:calc(50% + 35px);
-  }
-  #copyArtworkButton {
-    top:calc(50% + 79px);
-  }
-  .close {
-    top:calc(12px + env(safe-area-inset-top));
-    right:calc(12px + env(safe-area-inset-right));
-    width:42px;
-    height:42px;
-  }
-}
-
-@media(prefers-reduced-motion:reduce) {
-  #intro {animation:none;display:none}
-  .intro-title,.intro-sub,.intro-author,.intro-small {
-    opacity:1;
-    animation:none;
-  }
-  .close,.icon-action,.artwork-arrow {
-    transition:none;
-  }
+section{max-width:1250px;margin:auto;padding:25px 6% 70px}
+.section-title{font-size:32px;font-weight:normal;text-align:center}
+.section-description{text-align:center;color:var(--muted);margin-bottom:30px}
+.search-wrap{max-width:550px;margin:0 auto 35px}
+.search-wrap input{
+  width:100%;padding:15px 17px;background:var(--surface);
+  border:1px solid var(--border);color:var(--text);
+  font-family:inherit;font-size:16px;border-radius:3px;
+}
+.search-hint{font-size:12px;color:var(--muted);text-align:center;margin-top:9px}
+.gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:22px}
+.artwork{
+  background:var(--surface);border:1px solid var(--border);
+  padding:10px;cursor:pointer;transition:transform .25s,box-shadow .25s;
+  animation:cardIn .65s both;
+}
+.artwork:hover{transform:translateY(-5px);box-shadow:0 12px 30px #00000012}
+.artwork img{
+  display:block;width:100%;aspect-ratio:4/5;object-fit:cover;background:var(--bg);
+}
+.artwork p{text-align:center;color:var(--muted);font-size:14px;margin:13px 0 5px}
+.no-results{display:none;text-align:center;color:var(--muted);padding:30px}
+.panel{
+  display:none;text-align:center;background:var(--surface);
+  border:1px solid var(--border);padding:45px 25px;line-height:1.8;
+  animation:fadeIn .5s ease both;
+}
+.panel.active{display:block}
+#gallerySection.hidden{display:none}
+.modal{
+  display:none;position:fixed;inset:0;z-index:30;
+  background:rgba(0,0,0,.94);padding:75px 25px 30px;
+  align-items:center;justify-content:center;overflow-y:auto;
+}
+.modal.open{display:flex;animation:fadeIn .25s ease}
+.modal-content{max-width:950px;width:100%;text-align:center;color:white;margin:auto}
+.modal h2{font-weight:normal;margin:20px 0 10px}
+.modal-description{white-space:pre-wrap;line-height:1.7;margin:0 auto 20px;max-width:700px}
+.close{
+  position:fixed;top:calc(18px + env(safe-area-inset-top));
+  right:calc(18px + env(safe-area-inset-right));z-index:35;
+  width:44px;height:44px;padding:0;display:flex;align-items:center;
+  justify-content:center;color:white;background:#ffffff1f;
+  border:1px solid #ffffff47;border-radius:50%;font-family:Arial;
+  font-size:27px;font-weight:300;transition:.2s;
+}
+.close:hover{background:#ffffff3b;transform:rotate(90deg)}
+.artwork-stage{
+  display:grid;grid-template-columns:58px minmax(0,1fr) 58px;
+  align-items:stretch;gap:12px;width:100%;max-width:950px;margin:0 auto;
+}
+.artwork-image-wrap{min-width:0;display:flex;align-items:center;justify-content:center}
+.artwork-image-wrap img{
+  display:block;max-width:100%;max-height:65vh;width:auto;height:auto;object-fit:contain;
+}
+.artwork-arrow{
+  width:48px;height:48px;padding:0;display:flex;align-items:center;
+  justify-content:center;color:#eee9df;background:#ffffff0f;
+  border:1px solid #eee9df73;border-radius:50%;transition:.2s;
+}
+.artwork-arrow:hover{background:#ffffff29}
+.artwork-arrow.previous{align-self:center}
+.artwork-arrow.previous:hover{transform:translateX(-3px)}
+.artwork-side-actions{position:relative;align-self:stretch;min-height:100%}
+.artwork-arrow.next{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+}
+.artwork-arrow.next:hover{transform:translate(-50%,-50%) translateX(3px)}
+.artwork-arrow:disabled{opacity:.22;cursor:default}
+.artwork-arrow svg,.icon-action svg{
+  width:20px;height:20px;stroke:currentColor;stroke-width:1.6;
+  fill:none;stroke-linecap:round;stroke-linejoin:round;
+}
+.icon-action{
+  position:absolute;left:50%;width:42px;height:42px;padding:0;
+  display:flex;align-items:center;justify-content:center;color:#eee9df;
+  background:#ffffff0f;border:1px solid #eee9df73;border-radius:50%;
+  transform:translateX(-50%);transition:.2s;
+}
+#shareArtworkButton{top:calc(50% + 43px)}
+#copyArtworkButton{top:calc(50% + 93px)}
+.icon-action:hover{background:#ffffff29}
+.artwork-counter{margin-top:14px;color:#eee9df99;font-size:11px;letter-spacing:1.7px}
+.share-message{min-height:18px;margin:12px auto 0;color:#eee9dfb8;font-size:12px}
+footer{
+  text-align:center;padding:35px 15px;color:var(--muted);
+  border-top:1px solid var(--border);font-size:13px;
+}
+#intro{
+  position:fixed;inset:0;z-index:50;background:var(--bg);
+  display:flex;align-items:center;justify-content:center;text-align:center;
+  padding:25px;animation:introFadeOut 1.2s ease 5s forwards;
+}
+.intro-inner{animation:introAppear 1.5s ease both}
+.intro-small{
+  color:var(--accent);letter-spacing:3px;font-size:11px;margin-bottom:28px;
+  opacity:0;animation:reveal 1s ease .3s forwards;
+}
+.intro-title{
+  font-size:clamp(42px,8vw,78px);font-weight:normal;margin:0;
+  opacity:0;animation:reveal 1.5s ease .8s forwards;
+}
+.intro-line{width:0;height:1px;background:var(--accent);margin:25px auto;animation:lineGrow 1.4s ease 1.8s forwards}
+.intro-sub{color:var(--muted);letter-spacing:2px;font-size:13px;opacity:0;animation:reveal 1.2s ease 2.3s forwards}
+.intro-author{color:var(--muted);margin-top:40px;font-size:14px;opacity:0;animation:reveal 1.2s ease 3s forwards}
+@keyframes reveal{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes lineGrow{to{width:90px}}
+@keyframes introAppear{from{opacity:0}to{opacity:1}}
+@keyframes introFadeOut{to{opacity:0;visibility:hidden;pointer-events:none}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes cardIn{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:600px){
+  header{padding:14px 4%;flex-wrap:wrap}
+  .logo{font-size:16px}.header-actions{gap:6px}
+  .header-actions button{padding:9px 10px;font-size:12px}
+  .gallery{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+  .artwork{padding:6px}
+  .modal{padding:75px 15px 25px;align-items:flex-start}
+  .artwork-stage{grid-template-columns:42px minmax(0,1fr) 42px;gap:5px}
+  .artwork-image-wrap img{max-height:58vh}
+  .artwork-arrow{width:38px;height:38px}
+  .icon-action{width:36px;height:36px}
+  #shareArtworkButton{top:calc(50% + 35px)}
+  #copyArtworkButton{top:calc(50% + 79px)}
+  .close{top:calc(12px + env(safe-area-inset-top));right:calc(12px + env(safe-area-inset-right));width:42px;height:42px}
+}
+@media(prefers-reduced-motion:reduce){
+  #intro{animation:none;display:none}
+  *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}
 }
 </style>
 </head>
@@ -724,1088 +178,354 @@ footer {
 
 <div id="intro">
   <div class="intro-inner">
-    <div class="intro-small">
-      BARBARA SCHÜTZE · DIGITALE AUSSTELLUNG
-    </div>
+    <div class="intro-small">BARBARA SCHÜTZE · DIGITALE AUSSTELLUNG</div>
     <h1 class="intro-title">Wort trifft Objekt</h1>
     <div class="intro-line"></div>
-    <div class="intro-sub">
-      FUNDSTÜCKE · FIGUREN · GEDANKEN
-    </div>
-    <div class="intro-author">
-      Eine Ausstellung von<br>Barbara Schütze
-    </div>
+    <div class="intro-sub">FUNDSTÜCKE · FIGUREN · GEDANKEN</div>
+    <div class="intro-author">Eine Ausstellung von<br>Barbara Schütze</div>
   </div>
 </div>
 
 <header>
-  <a class="logo" href="#"
-     onclick="showPage('gallery');return false">
-    Wort trifft Objekt
-  </a>
-
+  <a class="logo" href="#" onclick="showPage('gallery');return false">Wort trifft Objekt</a>
   <div class="header-actions">
-    <button onclick="toggleTheme()" id="themeButton">
-      ☾ Dunkel
-    </button>
-
-    <button id="adminButton"
-            onclick="openLogin()"
-            style="display:inline-block">
-      ⚙ Admin
-    </button>
-
-    <button id="logoutButton"
-            onclick="logoutAdmin()"
-            style="display:none">
-      Abmelden
-    </button>
+    <button onclick="toggleTheme()" id="themeButton">☾ Dunkel</button>
+    <a class="button" href="./admin.html">⚙ Admin</a>
   </div>
 </header>
 
 <div class="hero">
-  <h1>Wort trifft Objekt</h1>
-  <div class="subtitle">
-    FUNDSTÜCKE · FIGUREN · GEDANKEN
-  </div>
-  <div class="artist-name">
-    Eine digitale Ausstellung von<br>Barbara Schütze
-  </div>
+  <h1 id="heroTitle">Wort trifft Objekt</h1>
+  <div class="subtitle" id="heroSubtitle">FUNDSTÜCKE · FIGUREN · GEDANKEN</div>
+  <div class="artist-name" id="heroText">Eine digitale Ausstellung von<br>Barbara Schütze</div>
 </div>
 
 <nav>
   <button onclick="showPage('gallery')">Galerie</button>
   <button onclick="showPage('about')">Über die Künstlerin</button>
-  <a class="button" href="./Kunstkatalog.pdf" target="_blank">
-    PDF-Katalog
-  </a>
+  <a class="button" href="./Kunstkatalog.pdf" target="_blank" rel="noopener">PDF-Katalog</a>
 </nav>
 
 <section id="gallerySection">
   <h2 class="section-title">Die Ausstellung</h2>
-  <p class="section-description">
-    Fünfzig Werke – fünfzig eigene Perspektiven.
-  </p>
+  <p class="section-description">Fünfzig Werke – fünfzig eigene Perspektiven.</p>
 
   <div class="search-wrap">
-    <input
-      type="search"
-      id="searchInput"
-      placeholder="⌕ Kunstwerke suchen ..."
-      aria-label="Kunstwerke suchen"
-      oninput="searchArtworks()"
-    >
-    <div class="search-hint">
-      Durchsuche die Ausstellung nach Nummer, Titel oder Beschreibung.
-    </div>
+    <input type="search" id="searchInput" placeholder="⌕ Kunstwerke suchen ..." aria-label="Kunstwerke suchen" oninput="searchArtworks()">
+    <div class="search-hint">Durchsuche die Ausstellung nach Nummer, Titel oder Beschreibung.</div>
   </div>
 
   <div class="gallery" id="gallery"></div>
-  <div class="no-results" id="noResults">
-    Keine passenden Kunstwerke gefunden.
-  </div>
+  <div class="no-results" id="noResults">Keine passenden Kunstwerke gefunden.</div>
 </section>
 
 <section id="aboutSection" class="panel">
   <h2 class="section-title" id="artistTitle">Über die Künstlerin</h2>
-
   <p><strong>Barbara Schütze</strong></p>
-
-  <p id="artistDescription">
-    Ein Einblick in die Künstlerin, ihre Gedanken und ihre kreative Arbeit.
-    Jedes Objekt erzählt seine eigene Geschichte und eröffnet einen neuen
-    Blick auf die kleinen und großen Dinge des Lebens.
-  </p>
-
-  <p>
-    Kontakt:
-    <a href="mailto:ba.schuetze@web.de"
-       style="color:var(--accent)">
-      ba.schuetze@web.de
-    </a>
-  </p>
-
-  <div id="artistEditArea" style="display:none">
-    <button onclick="toggleArtistEditor()">
-      Künstlerbeschreibung bearbeiten
-    </button>
-
-    <div id="artistEditor" class="artist-editor">
-      <h3>Künstlerbeschreibung bearbeiten</h3>
-
-      <label for="artistTitleInput">Überschrift</label>
-      <input id="artistTitleInput" maxlength="200">
-
-      <label for="artistDescriptionInput">
-        Beschreibung
-      </label>
-      <textarea id="artistDescriptionInput"></textarea>
-
-      <button onclick="saveArtistProfile()">
-        Änderungen speichern
-      </button>
-
-      <button onclick="toggleArtistEditor(false)">
-        Abbrechen
-      </button>
-
-      <div id="artistSaveMessage" class="artist-message"></div>
-    </div>
-  </div>
+  <p id="artistDescription"></p>
+  <p>Kontakt: <a href="mailto:ba.schuetze@web.de" style="color:var(--accent)">ba.schuetze@web.de</a></p>
 </section>
 
-<footer>
-  Wort trifft Objekt · Barbara Schütze
-</footer>
+<footer>Wort trifft Objekt · Barbara Schütze</footer>
 
-<!-- BILD-VOLLANZEIGE -->
 <div class="modal" id="modal" onclick="closeModal(event)">
-
-  <button class="close"
-          type="button"
-          aria-label="Vollansicht schließen"
-          onclick="closeModal(event)">
-    ×
-  </button>
-
+  <button class="close" type="button" aria-label="Vollansicht schließen" onclick="closeModal(event)">×</button>
   <div class="modal-content" onclick="event.stopPropagation()">
-
-    <!-- BILD UND PFEILE -->
     <div class="artwork-stage">
-
-      <button class="artwork-arrow previous"
-              id="previousArtworkButton"
-              type="button"
-              aria-label="Vorheriges Kunstwerk"
-              title="Vorheriges Kunstwerk"
-              onclick="navigateArtwork(-1)">
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M19 12H5"></path>
-          <path d="m12 19-7-7 7-7"></path>
-        </svg>
+      <button class="artwork-arrow previous" id="previousArtworkButton" aria-label="Vorheriges Kunstwerk" onclick="navigateArtwork(-1)">
+        <svg viewBox="0 0 24 24"><path d="M19 12H5"></path><path d="m12 19-7-7 7-7"></path></svg>
       </button>
-
-      <div class="artwork-image-wrap">
-        <img id="modalImage" src="" alt="">
-      </div>
-
+      <div class="artwork-image-wrap"><img id="modalImage" src="" alt=""></div>
       <div class="artwork-side-actions">
-
-        <button class="artwork-arrow next"
-                id="nextArtworkButton"
-                type="button"
-                aria-label="Nächstes Kunstwerk"
-                title="Nächstes Kunstwerk"
-                onclick="navigateArtwork(1)">
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M5 12h14"></path>
-            <path d="m12 5 7 7-7 7"></path>
-          </svg>
+        <button class="artwork-arrow next" id="nextArtworkButton" aria-label="Nächstes Kunstwerk" onclick="navigateArtwork(1)">
+          <svg viewBox="0 0 24 24"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
         </button>
-
-        <button class="icon-action"
-                id="shareArtworkButton"
-                type="button"
-                aria-label="Kunstwerk teilen"
-                title="Kunstwerk teilen"
-                onclick="shareArtwork()">
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <circle cx="18" cy="5" r="3"></circle>
-            <circle cx="6" cy="12" r="3"></circle>
-            <circle cx="18" cy="19" r="3"></circle>
-            <path d="m8.7 10.7 6.6-4.4"></path>
-            <path d="m8.7 13.3 6.6 4.4"></path>
-          </svg>
+        <button class="icon-action" id="shareArtworkButton" aria-label="Kunstwerk teilen" title="Kunstwerk teilen" onclick="shareArtwork()">
+          <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><path d="m8.7 10.7 6.6-4.4"></path><path d="m8.7 13.3 6.6 4.4"></path></svg>
         </button>
-
-        <button class="icon-action"
-                id="copyArtworkButton"
-                type="button"
-                aria-label="Link kopieren"
-                title="Link kopieren"
-                onclick="copyArtworkLink()">
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M10 13a5 5 0 0 0 7.1 0l3-3a5 5 0 0 0-7.1-7.1l-1.7 1.7"></path>
-            <path d="M14 11a5 5 0 0 0-7.1 0l-3 3a5 5 0 0 0 7.1 7.1l1.7-1.7"></path>
-          </svg>
+        <button class="icon-action" id="copyArtworkButton" aria-label="Link kopieren" title="Link kopieren" onclick="copyArtworkLink()">
+          <svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.1 0l3-3a5 5 0 0 0-7.1-7.1l-1.7 1.7"></path><path d="M14 11a5 5 0 0 0-7.1 0l-3 3a5 5 0 0 0 7.1 7.1l1.7-1.7"></path></svg>
         </button>
-
       </div>
     </div>
-
-    <!-- BILDZÄHLER -->
-    <div class="artwork-counter" id="artworkCounter">
-      1 / 50
-    </div>
-
-    <!-- TEILEN-RÜCKMELDUNG -->
-    <div id="shareMessage"
-         class="share-message"
-         aria-live="polite"></div>
-
+    <div class="artwork-counter" id="artworkCounter"></div>
+    <div id="shareMessage" class="share-message" aria-live="polite"></div>
     <h2 id="modalTitle"></h2>
     <p id="modalDescription" class="modal-description"></p>
-
-    <!-- ADMIN-BEARBEITUNG -->
-    <div id="adminEditor" class="admin-panel">
-      <h3>Kunstwerk bearbeiten</h3>
-
-      <label for="editTitle">Titel</label>
-      <input id="editTitle" maxlength="200">
-
-      <label for="editDescription">Beschreibung</label>
-      <textarea id="editDescription"></textarea>
-
-      <button onclick="saveArtwork()">Änderungen speichern</button>
-      <div id="saveMessage" class="admin-message"></div>
-    </div>
-
-  </div>
-</div>
-
-<!-- LOGIN -->
-<div class="login-overlay" id="loginOverlay">
-  <div class="login-box">
-    <button onclick="closeLogin()"
-            style="float:right;width:auto;margin:0">
-      ×
-    </button>
-
-    <h2>Admin-Anmeldung</h2>
-
-    <form onsubmit="loginAdmin(event)">
-      <label for="loginEmail">E-Mail-Adresse</label>
-      <input id="loginEmail" type="email" required
-             autocomplete="username">
-
-      <label for="loginPassword">Passwort</label>
-      <input id="loginPassword" type="password" required
-             autocomplete="current-password">
-
-      <button type="submit">Anmelden</button>
-    </form>
-
-    <p id="loginMessage" class="login-message">
-      Dieser Bereich ist ausschließlich für berechtigte Administratoren.
-    </p>
-  </div>
-</div>
-
-<!-- PASSWORT ZURÜCKSETZEN -->
-<div class="recovery-overlay" id="recoveryOverlay">
-  <div class="recovery-box">
-    <h2>Neues Passwort festlegen</h2>
-
-    <p>
-      Dein Wiederherstellungslink wurde erkannt.
-      Lege jetzt ein neues Passwort für dein Admin-Konto fest.
-    </p>
-
-    <form onsubmit="updatePassword(event)">
-      <label for="newPassword">Neues Passwort</label>
-      <input
-        id="newPassword"
-        type="password"
-        minlength="8"
-        required
-        autocomplete="new-password"
-      >
-
-      <label for="confirmPassword">Passwort wiederholen</label>
-      <input
-        id="confirmPassword"
-        type="password"
-        minlength="8"
-        required
-        autocomplete="new-password"
-      >
-
-      <button type="submit" id="recoveryButton">
-        Neues Passwort speichern
-      </button>
-    </form>
-
-    <div id="recoveryMessage" class="recovery-message"></div>
   </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <script>
-const SUPABASE_URL =
-  "https://wurunvcuikmjaehkdcvb.supabase.co";
+const SUPABASE_URL="https://wurunvcuikmjaehkdcvb.supabase.co";
+const SUPABASE_KEY="sb_publishable_qtIp3RDWWXOSKx2Mu-vxvA_tyabauCd";
+const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
-const SUPABASE_KEY =
-  "sb_publishable_qtIp3RDWWXOSKx2Mu-vxvA_tyabauCd";
+let artworks=[];
+let activeArtworkId=null;
+let artistProfile={
+  title:"Über die Künstlerin",
+  description:"Ein Einblick in die Künstlerin, ihre Gedanken und ihre kreative Arbeit. Jedes Objekt erzählt seine eigene Geschichte und eröffnet einen neuen Blick auf die kleinen und großen Dinge des Lebens."
+};
+let siteSettings=null;
 
-const SECOND_ADMIN_EMAIL = "ba.schuetze@web.de";
-
-const supabaseClient = window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_KEY,
-  {
-    auth: {
-      detectSessionInUrl:true,
-      persistSession:true,
-      autoRefreshToken:true
-    }
-  }
-);
-
-let artworks = [];
-let isAdmin = false;
-let activeArtworkId = null;
-let recoveryActive = false;
-
-function defaultArtworks() {
+function defaultArtworks(){
   return Array.from({length:50},(_,i)=>({
-    id:i+1,
-    title:`Kunstwerk ${i+1}`,
-    description:"Beschreibung folgt."
+    id:i+1,title:`Kunstwerk ${i+1}`,description:"Beschreibung folgt.",is_visible:true
   }));
 }
 
-function getArtworkById(id) {
-  return artworks.find(a => Number(a.id) === Number(id));
+function getArtworkById(id){
+  return artworks.find(a=>Number(a.id)===Number(id));
 }
 
-/* KUNSTWERKE LADEN */
-async function loadArtworks() {
-  try {
-    const {data,error} = await supabaseClient
+function getVisitorId(){
+  try{
+    let id=localStorage.getItem("wto-visitor-id");
+    if(!id){
+      id=crypto.randomUUID();
+      localStorage.setItem("wto-visitor-id",id);
+    }
+    return id;
+  }catch(e){return null}
+}
+
+async function trackEvent(type,artworkId=null){
+  try{
+    const {data:{session}}=await supabaseClient.auth.getSession();
+    if(session)return;
+    const visitorId=getVisitorId();
+    if(!visitorId)return;
+    await supabaseClient.rpc("track_gallery_event",{
+      p_visitor_id:visitorId,
+      p_event_type:type,
+      p_artwork_id:artworkId
+    });
+  }catch(e){console.warn("Statistik konnte nicht gespeichert werden.",e)}
+}
+
+async function loadArtworks(){
+  try{
+    const {data,error}=await supabaseClient
       .from("artworks")
-      .select("id,title,description")
+      .select("id,title,description,is_visible")
       .order("id");
-
-    if(error) throw error;
-
-    artworks = data && data.length
-      ? data
-      : defaultArtworks();
-
-  } catch(error) {
-    console.error("Fehler beim Laden:",error);
-    artworks = defaultArtworks();
+    if(error)throw error;
+    artworks=(data&&data.length?data:defaultArtworks())
+      .filter(a=>a.is_visible!==false);
+  }catch(e){
+    console.error("Kunstwerke konnten nicht geladen werden:",e);
+    artworks=defaultArtworks();
   }
-
   renderGallery();
   openArtworkFromUrl();
 }
 
-/* KÜNSTLERPROFIL LADEN */
-async function loadArtistProfile() {
-  try {
-    const {data,error} = await supabaseClient
+async function loadArtistProfile(){
+  try{
+    const {data,error}=await supabaseClient
       .from("artist_profile")
       .select("id,title,description")
-      .eq("id",1)
-      .single();
-
-    if(error) throw error;
-    if(data) artistProfile = data;
-
-  } catch(error) {
-    console.error("Fehler beim Laden des Künstlerprofils:",error);
-  }
-
+      .eq("id",1).single();
+    if(error)throw error;
+    if(data)artistProfile=data;
+  }catch(e){console.warn("Künstlerprofil:",e)}
   renderArtistProfile();
 }
 
-let artistProfile = {
-  id:1,
-  title:"Über die Künstlerin",
-  description:"Ein Einblick in die Künstlerin, ihre Gedanken und ihre kreative Arbeit. Jedes Objekt erzählt seine eigene Geschichte und eröffnet einen neuen Blick auf die kleinen und großen Dinge des Lebens."
-};
-
-/* KÜNSTLERPROFIL ANZEIGEN */
-function renderArtistProfile() {
-  document.getElementById("artistTitle").textContent =
-    artistProfile.title || "Über die Künstlerin";
-
-  document.getElementById("artistDescription").textContent =
-    artistProfile.description || "";
+function renderArtistProfile(){
+  document.getElementById("artistTitle").textContent=artistProfile.title||"Über die Künstlerin";
+  document.getElementById("artistDescription").textContent=artistProfile.description||"";
 }
 
-/* BEARBEITUNGSBEREICH ÖFFNEN */
-function toggleArtistEditor(forceState) {
-  if(!isAdmin) return;
-
-  const editor = document.getElementById("artistEditor");
-
-  const shouldOpen =
-    typeof forceState === "boolean"
-      ? forceState
-      : !editor.classList.contains("visible");
-
-  if(shouldOpen) {
-    document.getElementById("artistTitleInput").value =
-      artistProfile.title || "";
-
-    document.getElementById("artistDescriptionInput").value =
-      artistProfile.description || "";
-
-    document.getElementById("artistSaveMessage").textContent = "";
-    editor.classList.add("visible");
-  } else {
-    editor.classList.remove("visible");
-  }
-}
-
-/* KÜNSTLERPROFIL SPEICHERN */
-async function saveArtistProfile() {
-  if(!isAdmin) return;
-
-  const title =
-    document.getElementById("artistTitleInput").value.trim();
-
-  const description =
-    document.getElementById("artistDescriptionInput").value.trim();
-
-  const message =
-    document.getElementById("artistSaveMessage");
-
-  if(!title || !description) {
-    message.textContent =
-      "Bitte fülle Überschrift und Beschreibung aus.";
-    return;
-  }
-
-  message.textContent = "Speichern läuft ...";
-
-  const {data,error} = await supabaseClient
-    .from("artist_profile")
-    .update({
-      title,
-      description,
-      updated_at:new Date().toISOString()
-    })
-    .eq("id",1)
-    .select()
-    .single();
-
-  if(error) {
-    console.error("Fehler beim Speichern:",error);
-    message.textContent =
-      "Speichern fehlgeschlagen. Bitte überprüfe deine Admin-Rechte und die Supabase-Tabelle.";
-    return;
-  }
-
-  artistProfile = data;
-  renderArtistProfile();
-
-  message.textContent = "Änderungen erfolgreich gespeichert.";
-
-  setTimeout(() => {
-    if(isAdmin) {
-      document.getElementById("artistEditor").classList.remove("visible");
+async function loadSiteSettings(){
+  try{
+    const {data,error}=await supabaseClient
+      .from("site_settings")
+      .select("id,welcome_title,welcome_subtitle,welcome_text")
+      .eq("id",1).single();
+    if(error)throw error;
+    if(data){
+      siteSettings=data;
+      document.getElementById("heroTitle").textContent=data.welcome_title;
+      document.getElementById("heroSubtitle").textContent=data.welcome_subtitle;
+      document.getElementById("heroText").textContent=data.welcome_text;
     }
-  },1200);
+  }catch(e){console.warn("Startseiteneinstellungen:",e)}
 }
 
-/* GALERIE */
-function renderGallery() {
-  const gallery = document.getElementById("gallery");
-  gallery.innerHTML = "";
-
-  artworks.forEach(artwork => {
-    const card = document.createElement("div");
-    card.className = "artwork";
-    card.dataset.id = artwork.id;
-
-    const img = document.createElement("img");
-    img.src = `./bilder/bild${artwork.id}.jpg`;
-    img.alt = artwork.title;
-    img.loading = "lazy";
-
-    img.onerror = () => {
-      card.style.display = "none";
-    };
-
-    const caption = document.createElement("p");
-    caption.textContent =
-      artwork.title || `Kunstwerk ${artwork.id}`;
-
-    card.appendChild(img);
-    card.appendChild(caption);
-
-    card.onclick = () => openModal(artwork.id,img.src);
-
+function renderGallery(){
+  const gallery=document.getElementById("gallery");
+  gallery.innerHTML="";
+  artworks.forEach((artwork,index)=>{
+    const card=document.createElement("div");
+    card.className="artwork";
+    card.style.animationDelay=Math.min(index*35,500)+"ms";
+    card.dataset.id=artwork.id;
+    const img=document.createElement("img");
+    img.src=`./bilder/bild${artwork.id}.jpg`;
+    img.alt=artwork.title||`Kunstwerk ${artwork.id}`;
+    img.loading="lazy";
+    img.onerror=()=>card.style.display="none";
+    const caption=document.createElement("p");
+    caption.textContent=artwork.title||`Kunstwerk ${artwork.id}`;
+    card.append(img,caption);
+    card.onclick=()=>openModal(artwork.id);
     gallery.appendChild(card);
   });
-
   searchArtworks();
 }
 
-function searchArtworks() {
-  const query = document.getElementById("searchInput")
-    .value.trim().toLowerCase();
-
-  let visible = 0;
-
-  document.querySelectorAll(".artwork").forEach(card => {
-    const artwork = artworks.find(
-      a => a.id === Number(card.dataset.id)
-    );
-
-    const searchable = [
-      artwork?.title,
-      artwork?.description,
-      String(artwork?.id)
-    ].join(" ").toLowerCase();
-
-    const matches = searchable.includes(query);
-    card.style.display = matches ? "" : "none";
-
-    if(matches) visible++;
+function searchArtworks(){
+  const query=document.getElementById("searchInput").value.trim().toLowerCase();
+  let visible=0;
+  document.querySelectorAll(".artwork").forEach(card=>{
+    const a=getArtworkById(card.dataset.id);
+    const text=[a?.title,a?.description,String(a?.id)].join(" ").toLowerCase();
+    const match=text.includes(query);
+    card.style.display=match?"":"none";
+    if(match)visible++;
   });
-
-  document.getElementById("noResults").style.display =
-    visible === 0 ? "block" : "none";
+  document.getElementById("noResults").style.display=visible===0?"block":"none";
 }
 
-/* DIREKTLINK AKTUALISIEREN */
-function updateArtworkUrl(id) {
-  const url = new URL(window.location.href);
-
-  url.search = "";
-  url.hash = "";
-
-  if(id !== null && id !== undefined) {
-    url.searchParams.set("bild",String(id));
-  }
-
-  window.history.replaceState({}, "", url.toString());
+function updateArtworkUrl(id){
+  const url=new URL(location.href);
+  url.search="";url.hash="";
+  if(id!==null)url.searchParams.set("bild",String(id));
+  history.replaceState({},"",url);
 }
 
-/* PFEIL-NAVIGATION AKTUALISIEREN */
-function updateArtworkNavigation() {
-  const index = artworks.findIndex(
-    a => Number(a.id) === Number(activeArtworkId)
-  );
-
-  const previousButton =
-    document.getElementById("previousArtworkButton");
-
-  const nextButton =
-    document.getElementById("nextArtworkButton");
-
-  const counter =
-    document.getElementById("artworkCounter");
-
-  if(index === -1) {
-    previousButton.disabled = true;
-    nextButton.disabled = true;
-    counter.textContent = "";
-    return;
-  }
-
-  previousButton.disabled = index === 0;
-  nextButton.disabled = index === artworks.length - 1;
-
-  counter.textContent =
-    `${index + 1} / ${artworks.length}`;
+function updateArtworkNavigation(){
+  const index=artworks.findIndex(a=>Number(a.id)===Number(activeArtworkId));
+  document.getElementById("previousArtworkButton").disabled=index<=0;
+  document.getElementById("nextArtworkButton").disabled=index<0||index>=artworks.length-1;
+  document.getElementById("artworkCounter").textContent=index<0?"":`${index+1} / ${artworks.length}`;
 }
 
-/* ZWISCHEN KUNSTWERKEN WECHSELN */
-function navigateArtwork(direction) {
-  if(activeArtworkId === null) return;
-
-  const currentIndex = artworks.findIndex(
-    a => Number(a.id) === Number(activeArtworkId)
-  );
-
-  if(currentIndex === -1) return;
-
-  const nextIndex = currentIndex + direction;
-
-  if(nextIndex < 0 || nextIndex >= artworks.length) return;
-
-  const nextArtwork = artworks[nextIndex];
-
-  openModal(
-    nextArtwork.id,
-    `./bilder/bild${nextArtwork.id}.jpg`
-  );
-
-  updateArtworkUrl(nextArtwork.id);
-}
-
-/* BILD-MODAL */
-function openModal(id,source) {
-  const artwork = getArtworkById(id);
-  if(!artwork) return;
-
-  activeArtworkId = Number(id);
-
-  document.getElementById("modalImage").src =
-    source || `./bilder/bild${artwork.id}.jpg`;
-
-  document.getElementById("modalImage").alt =
-    artwork.title || `Kunstwerk ${artwork.id}`;
-
-  document.getElementById("modalTitle").textContent =
-    artwork.title || `Kunstwerk ${artwork.id}`;
-
-  document.getElementById("modalDescription").textContent =
-    artwork.description || "";
-
-  document.getElementById("shareMessage").textContent = "";
-
-  const editor = document.getElementById("adminEditor");
-  editor.classList.toggle("visible",isAdmin);
-
-  if(isAdmin) {
-    document.getElementById("editTitle").value = artwork.title;
-    document.getElementById("editDescription").value =
-      artwork.description;
-  }
-
+function openModal(id){
+  const artwork=getArtworkById(id);
+  if(!artwork)return;
+  activeArtworkId=Number(id);
+  document.getElementById("modalImage").src=`./bilder/bild${id}.jpg`;
+  document.getElementById("modalImage").alt=artwork.title||`Kunstwerk ${id}`;
+  document.getElementById("modalTitle").textContent=artwork.title||`Kunstwerk ${id}`;
+  document.getElementById("modalDescription").textContent=artwork.description||"";
+  document.getElementById("shareMessage").textContent="";
   updateArtworkNavigation();
-  updateArtworkUrl(artwork.id);
-
+  updateArtworkUrl(id);
   document.getElementById("modal").classList.add("open");
+  trackEvent("artwork_view",Number(id));
 }
 
-/* GETEILTEN DIREKTLINK ÖFFNEN */
-function openArtworkFromUrl() {
-  const params = new URLSearchParams(window.location.search);
-  const artworkId = Number(params.get("bild"));
-
-  if(!Number.isInteger(artworkId) || artworkId < 1) return;
-
-  const artwork = getArtworkById(artworkId);
-  if(!artwork) return;
-
-  showPage("gallery");
-
-  openModal(
-    artwork.id,
-    `./bilder/bild${artwork.id}.jpg`
-  );
+function navigateArtwork(direction){
+  if(activeArtworkId===null)return;
+  const index=artworks.findIndex(a=>Number(a.id)===Number(activeArtworkId));
+  const next=artworks[index+direction];
+  if(next)openModal(next.id);
 }
 
-/* LINK FÜR EIN KUNSTWERK ERSTELLEN */
-function getArtworkShareUrl(id) {
-  const url = new URL(window.location.href);
+function openArtworkFromUrl(){
+  const id=Number(new URLSearchParams(location.search).get("bild"));
+  if(!Number.isInteger(id)||id<1)return;
+  if(getArtworkById(id)){
+    showPage("gallery");
+    openModal(id);
+  }
+}
 
-  url.search = "";
-  url.hash = "";
+function getArtworkShareUrl(id){
+  const url=new URL(location.href);
+  url.search="";url.hash="";
   url.searchParams.set("bild",String(id));
-
   return url.toString();
 }
 
-/* KUNSTWERK TEILEN */
-async function shareArtwork() {
-  if(activeArtworkId === null) return;
-
-  const artwork = getArtworkById(activeArtworkId);
-  if(!artwork) return;
-
-  const shareUrl = getArtworkShareUrl(activeArtworkId);
-  const shareTitle = artwork.title || `Kunstwerk ${activeArtworkId}`;
-
-  const shareData = {
-    title: `${shareTitle} – Wort trifft Objekt`,
-    text: `Entdecke dieses Kunstwerk aus der Ausstellung „Wort trifft Objekt“ von Barbara Schütze.`,
-    url:shareUrl
-  };
-
-  const message = document.getElementById("shareMessage");
-  message.textContent = "";
-
-  if(navigator.share) {
-    try {
-      await navigator.share(shareData);
+async function shareArtwork(){
+  if(activeArtworkId===null)return;
+  const artwork=getArtworkById(activeArtworkId);
+  const url=getArtworkShareUrl(activeArtworkId);
+  try{
+    if(navigator.share){
+      await navigator.share({
+        title:`${artwork.title} – Wort trifft Objekt`,
+        text:"Entdecke dieses Kunstwerk aus der Ausstellung von Barbara Schütze.",
+        url
+      });
       return;
-    } catch(error) {
-      if(error.name === "AbortError") return;
-      console.error("Teilen nicht möglich:",error);
     }
-  }
-
+  }catch(e){if(e.name==="AbortError")return}
   await copyArtworkLink();
 }
 
-/* LINK DIREKT KOPIEREN */
-async function copyArtworkLink() {
-  if(activeArtworkId === null) return;
-
-  const shareUrl = getArtworkShareUrl(activeArtworkId);
-  const message = document.getElementById("shareMessage");
-
-  try {
-    await navigator.clipboard.writeText(shareUrl);
-    message.textContent =
-      "Link wurde kopiert. Du kannst ihn jetzt verschicken.";
-    return;
-  } catch(error) {
-    console.error("Kopieren nicht möglich:",error);
+async function copyArtworkLink(){
+  if(activeArtworkId===null)return;
+  const url=getArtworkShareUrl(activeArtworkId);
+  const message=document.getElementById("shareMessage");
+  try{
+    await navigator.clipboard.writeText(url);
+    message.textContent="Link wurde kopiert. Du kannst ihn jetzt verschicken.";
+  }catch(e){
+    const input=document.createElement("textarea");
+    input.value=url;input.style.position="fixed";input.style.opacity="0";
+    document.body.appendChild(input);input.select();
+    try{
+      const ok=document.execCommand("copy");
+      message.textContent=ok?"Link wurde kopiert. Du kannst ihn jetzt verschicken.":"Bitte kopiere diesen Link manuell: "+url;
+    }catch(err){message.textContent="Bitte kopiere diesen Link manuell: "+url}
+    input.remove();
   }
-
-  const temporaryInput = document.createElement("textarea");
-  temporaryInput.value = shareUrl;
-  temporaryInput.style.position = "fixed";
-  temporaryInput.style.opacity = "0";
-  document.body.appendChild(temporaryInput);
-  temporaryInput.select();
-
-  try {
-    const copied = document.execCommand("copy");
-
-    message.textContent = copied
-      ? "Link wurde kopiert. Du kannst ihn jetzt verschicken."
-      : "Bitte kopiere diesen Link manuell: " + shareUrl;
-
-  } catch(error) {
-    message.textContent =
-      "Bitte kopiere diesen Link manuell: " + shareUrl;
-  }
-
-  temporaryInput.remove();
 }
 
-function closeModal(event) {
-  if(
-    !event ||
-    event.target.id === "modal" ||
-    event.target.classList.contains("close")
-  ) {
+function closeModal(event){
+  if(!event||event.target.id==="modal"||event.target.classList.contains("close")){
     document.getElementById("modal").classList.remove("open");
-    activeArtworkId = null;
+    activeArtworkId=null;
     updateArtworkUrl(null);
   }
 }
 
-/* NAVIGATION */
-function showPage(page) {
-  const gallerySection =
-    document.getElementById("gallerySection");
-
-  const aboutSection =
-    document.getElementById("aboutSection");
-
-  if(page === "about") {
-    gallerySection.classList.add("hidden");
-    aboutSection.classList.add("active");
-  } else {
-    gallerySection.classList.remove("hidden");
-    aboutSection.classList.remove("active");
+function showPage(page){
+  const gallery=document.getElementById("gallerySection");
+  const about=document.getElementById("aboutSection");
+  if(page==="about"){
+    gallery.classList.add("hidden");
+    about.classList.add("active");
+  }else{
+    gallery.classList.remove("hidden");
+    about.classList.remove("active");
   }
-
   window.scrollTo({top:0,behavior:"smooth"});
 }
 
-/* HELL / DUNKEL */
-function toggleTheme() {
+function toggleTheme(){
   document.body.classList.toggle("dark");
-
-  const dark = document.body.classList.contains("dark");
-
-  document.getElementById("themeButton").textContent =
-    dark ? "☀ Hell" : "☾ Dunkel";
-
-  try {
-    localStorage.setItem(
-      "kunstgalerie-theme",
-      dark ? "dark" : "light"
-    );
-  } catch(e) {}
+  const dark=document.body.classList.contains("dark");
+  document.getElementById("themeButton").textContent=dark?"☀ Hell":"☾ Dunkel";
+  try{localStorage.setItem("kunstgalerie-theme",dark?"dark":"light")}catch(e){}
 }
 
-try {
-  if(localStorage.getItem("kunstgalerie-theme") === "dark") {
+try{
+  if(localStorage.getItem("kunstgalerie-theme")==="dark"){
     document.body.classList.add("dark");
-    document.getElementById("themeButton").textContent = "☀ Hell";
+    document.getElementById("themeButton").textContent="☀ Hell";
   }
-} catch(e) {}
+}catch(e){}
 
-/* LOGIN */
-function openLogin() {
-  if(isAdmin) return;
-
-  document.getElementById("loginMessage").textContent =
-    "Melde dich mit deinem Admin-Konto an.";
-
-  document.getElementById("loginOverlay").classList.add("open");
+async function initialize(){
+  const {data:{session}}=await supabaseClient.auth.getSession();
+  if(!session){
+    try{
+      if(!sessionStorage.getItem("wto-page-counted")){
+        await trackEvent("page_view");
+        sessionStorage.setItem("wto-page-counted","1");
+      }
+    }catch(e){}
+  }
+  await Promise.all([loadArtworks(),loadArtistProfile(),loadSiteSettings()]);
 }
 
-function closeLogin() {
-  document.getElementById("loginOverlay").classList.remove("open");
-}
-
-/* ADMIN-RECHTE PRÜFEN */
-async function checkAdmin(user) {
-  isAdmin = false;
-
-  if(user) {
-    const {data,error} = await supabaseClient
-      .from("admins")
-      .select("user_id")
-      .eq("user_id",user.id)
-      .maybeSingle();
-
-    if(!error && data) {
-      isAdmin = true;
-    }
-  }
-
-  document.getElementById("adminButton").style.display =
-    isAdmin ? "none" : "inline-block";
-
-  document.getElementById("logoutButton").style.display =
-    isAdmin ? "inline-block" : "none";
-
-  document.getElementById("artistEditArea").style.display =
-    isAdmin ? "block" : "none";
-
-  if(!isAdmin) {
-    document.getElementById("artistEditor").classList.remove("visible");
-  }
-
-  const editor = document.getElementById("adminEditor");
-
-  editor.classList.toggle(
-    "visible",
-    isAdmin && activeArtworkId !== null
-  );
-
-  if(isAdmin && activeArtworkId !== null) {
-    const artwork = getArtworkById(activeArtworkId);
-
-    if(artwork) {
-      document.getElementById("editTitle").value = artwork.title;
-      document.getElementById("editDescription").value =
-        artwork.description;
-    }
-  }
-}
-
-/* ANMELDEN */
-async function loginAdmin(event) {
-  event.preventDefault();
-
-  const email =
-    document.getElementById("loginEmail").value.trim();
-
-  const password =
-    document.getElementById("loginPassword").value;
-
-  const message =
-    document.getElementById("loginMessage");
-
-  message.textContent = "Anmeldung läuft ...";
-
-  const {data,error} = await supabaseClient.auth.signInWithPassword({
-    email,
-    password
-  });
-
-  if(error) {
-    message.textContent =
-      "Anmeldung fehlgeschlagen: " + error.message;
-    return;
-  }
-
-  await checkAdmin(data.user);
-
-  if(!isAdmin) {
-    await supabaseClient.auth.signOut();
-
-    message.textContent =
-      "Dieses Konto besitzt keine Admin-Berechtigung.";
-
-    return;
-  }
-
-  closeLogin();
-  alert("Du bist jetzt als Admin angemeldet.");
-}
-
-/* PASSWORT-WIEDERHERSTELLUNG */
-function showRecoveryWindow() {
-  recoveryActive = true;
-
-  document.getElementById("loginOverlay").classList.remove("open");
-  document.getElementById("recoveryOverlay").classList.add("open");
-
-  document.getElementById("recoveryMessage").textContent =
-    "Bitte lege dein neues Passwort fest.";
-}
-
-async function updatePassword(event) {
-  event.preventDefault();
-
-  const password =
-    document.getElementById("newPassword").value;
-
-  const confirmation =
-    document.getElementById("confirmPassword").value;
-
-  const message =
-    document.getElementById("recoveryMessage");
-
-  const button =
-    document.getElementById("recoveryButton");
-
-  if(password.length < 8) {
-    message.textContent =
-      "Das Passwort muss mindestens 8 Zeichen lang sein.";
-    return;
-  }
-
-  if(password !== confirmation) {
-    message.textContent =
-      "Die beiden Passwörter stimmen nicht überein.";
-    return;
-  }
-
-  button.disabled = true;
-  button.textContent = "Wird gespeichert ...";
-  message.textContent = "";
-
-  const {data,error} = await supabaseClient.auth.updateUser({
-    password:password
-  });
-
-  if(error) {
-    message.textContent =
-      "Fehler beim Speichern: " + error.message;
-
-    button.disabled = false;
-    button.textContent = "Neues Passwort speichern";
-    return;
-  }
-
-  message.textContent =
-    "Dein Passwort wurde erfolgreich geändert! Du kannst dich jetzt anmelden.";
-
-  document.getElementById("newPassword").value = "";
-  document.getElementById("confirmPassword").value = "";
-
-  recoveryActive = false;
-
-  document.getElementById("recoveryOverlay").classList.remove("open");
-
-  button.disabled = false;
-  button.textContent = "Neues Passwort speichern";
-
-  document.getElementById("loginOverlay").classList.add("open");
-
-  document.getElementById("loginMessage").textContent =
-    "Passwort geändert. Melde dich jetzt mit deinem neuen Passwort an.";
-}
-
-/* ABMELDEN */
-async function logoutAdmin() {
-  await supabaseClient.auth.signOut();
-
-  isAdmin = false;
-  activeArtworkId = null;
-
-  document.getElementById("adminEditor").classList.remove("visible");
-  document.getElementById("artistEditor").classList.remove("visible");
-  document.getElementById("artistEditArea").style.display = "none";
-
-  document.getElementById("adminButton").style.display = "inline-block";
-  document.getElementById("logoutButton").style.display = "none";
-  document.getElementById("modal").classList.remove("open");
-
-  updateArtworkUrl(null);
-
-  alert("Du wurdest abgemeldet.");
-}
-
-/* KUNSTWERK SPEICHERN */
-async function saveArtwork() {
-  if(!isAdmin || activeArtworkId === null) return;
-
-  const title =
-    document.getElementById("editTitle").value.trim();
-
-  const description =
-    document.getElementById("editDescription").value.trim();
-
-  const message =
-    document.getElementById("saveMessage");
-
-  if(!title) {
-    message.textContent = "Bitte gib einen Titel ein.";
-    return;
-  }
-
-  message.textContent = "Speichern läuft ...";
-
-  const {data,error} = await supabaseClient
-    .from("artworks")
-    .update({
-      title,
-      description,
-      updated_at:new Date().toISOString()
-    })
-    .eq("id",activeArtworkId)
-    .select()
-    .single();
-
-  if(error) {
-    console.error(error);
-    message.textContent =
-      "Speichern fehlgeschlagen. Bitte überprüfe deine Admin-Rechte.";
-    return;
-  }
-
-  const index = artworks.findIndex(
-    a => a.id === activeArtworkId
-  );
-
-  if(index !== -1) {
-    artworks[index] = data;
-  }
-
-  document.getElementById("modalTitle").textContent = data.title;
-  document.getElementById("modalDescription").textContent =
-    data.description;
-
-  document.getElementById("modalImage").alt = data.title;
-
-  renderGallery();
-  updateArtworkNavigation();
-
-  message.textContent =
-    "Änderungen erfolgreich gespeichert.";
-}
-
-/* AUTHENTIFIZIERUNG INITIALISIEREN */
-async function initializeAuth() {
-  supabaseClient.auth.onAuthStateChange((event,session) => {
-
-    if(event === "PASSWORD_RECOVERY") {
-      showRecoveryWindow();
-      return;
-    }
-
-    setTimeout(async () => {
-      if(recoveryActive) return;
-      await checkAdmin(session?.user || null);
-    },0);
-
-  });
-
-  const {data,error} = await supabaseClient.auth.getSession();
-
-  if(error) {
-    console.error("Session-Fehler:",error);
-  }
-
-  if(!recoveryActive) {
-    await checkAdmin(data.session?.user || null);
-  }
-}
-
-/* START */
-loadArtworks();
-loadArtistProfile();
-initializeAuth();
+initialize();
 </script>
 </body>
 </html>
