@@ -301,16 +301,11 @@ section {
 }
 .modal.open {display:flex}
 .modal-content {
-  max-width:850px;
+  max-width:950px;
   width:100%;
   text-align:center;
   color:white;
   margin:auto;
-}
-.modal img {
-  max-width:100%;
-  max-height:65vh;
-  object-fit:contain;
 }
 .modal h2 {
   font-weight:normal;
@@ -351,110 +346,102 @@ section {
   transform:rotate(90deg);
 }
 
-/* NEUE KUNSTWERK-NAVIGATION */
-.artwork-navigation {
-  display:flex;
+/* BILD, PFEILE UND AKTIONEN */
+.artwork-stage {
+  display:grid;
+  grid-template-columns:58px minmax(0,1fr) 58px;
   align-items:center;
-  justify-content:space-between;
-  max-width:620px;
-  margin:30px auto 22px;
-  gap:15px;
+  gap:12px;
+  width:100%;
+  max-width:950px;
+  margin:0 auto;
 }
-.artwork-nav-button {
+.artwork-image-wrap {
+  min-width:0;
   display:flex;
+  flex-direction:column;
   align-items:center;
-  gap:10px;
+  justify-content:center;
+}
+.artwork-image-wrap img {
+  display:block;
+  max-width:100%;
+  max-height:65vh;
+  width:auto;
+  height:auto;
+  object-fit:contain;
+}
+.artwork-counter {
+  margin-top:14px;
+  color:rgba(238,233,223,.62);
+  font-size:11px;
+  letter-spacing:1.7px;
+  text-align:center;
+}
+.artwork-arrow {
+  width:48px;
+  height:48px;
   padding:0;
-  color:#eee9df;
-  background:transparent;
-  border:0;
-  font-family:Georgia,serif;
-  font-size:14px;
-  letter-spacing:.2px;
-  transition:opacity .2s;
-}
-.artwork-nav-button:hover {
-  border-color:transparent;
-  opacity:.75;
-}
-.artwork-nav-button:disabled {
-  opacity:.25;
-  cursor:default;
-}
-.artwork-nav-circle {
-  width:46px;
-  height:46px;
   display:flex;
   align-items:center;
   justify-content:center;
-  border:1px solid rgba(238,233,223,.48);
+  color:#eee9df;
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(238,233,223,.45);
   border-radius:50%;
-  transition:background .25s,border-color .25s,transform .25s;
+  transition:background .2s,border-color .2s,transform .2s;
 }
-.artwork-nav-button:not(:disabled):hover .artwork-nav-circle {
-  background:rgba(255,255,255,.12);
-  border-color:rgba(238,233,223,.85);
+.artwork-arrow:hover {
+  background:rgba(255,255,255,.16);
+  border-color:rgba(238,233,223,.9);
 }
-.artwork-nav-button.previous:hover .artwork-nav-circle {
-  transform:translateX(-3px);
+.artwork-arrow.previous:hover {transform:translateX(-3px)}
+.artwork-arrow.next:hover {transform:translateX(3px)}
+.artwork-arrow:disabled {
+  opacity:.22;
+  cursor:default;
+  transform:none;
 }
-.artwork-nav-button.next:hover .artwork-nav-circle {
-  transform:translateX(3px);
-}
-.artwork-nav-circle svg {
-  width:19px;
-  height:19px;
+.artwork-arrow svg {
+  width:21px;
+  height:21px;
   stroke:currentColor;
   stroke-width:1.5;
   fill:none;
   stroke-linecap:round;
   stroke-linejoin:round;
 }
-.artwork-counter {
-  color:rgba(238,233,223,.58);
-  font-size:11px;
-  letter-spacing:1.5px;
-  white-space:nowrap;
-}
 
-/* TEILEN-BEREICH */
-.share-area {
-  margin:25px auto 30px;
+/* TEILEN UND KOPIEREN */
+.artwork-side-actions {
   display:flex;
   flex-direction:column;
   align-items:center;
-  gap:11px;
-}
-.share-actions {
-  display:flex;
   justify-content:center;
-  flex-wrap:wrap;
-  gap:10px;
+  gap:12px;
+  align-self:center;
 }
-.share-button {
-  display:inline-flex;
+.icon-action {
+  width:42px;
+  height:42px;
+  padding:0;
+  display:flex;
   align-items:center;
   justify-content:center;
-  gap:9px;
-  min-height:44px;
-  padding:10px 19px;
   color:#eee9df;
-  background:transparent;
-  border:1px solid rgba(238,233,223,.48);
-  border-radius:30px;
-  font-family:Georgia,serif;
-  font-size:13px;
-  letter-spacing:.3px;
-  transition:background .25s,border-color .25s,transform .25s;
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(238,233,223,.45);
+  border-radius:50%;
+  transition:background .2s,border-color .2s,transform .2s;
 }
-.share-button:hover {
-  background:rgba(255,255,255,.12);
-  border-color:rgba(238,233,223,.85);
+.icon-action:hover {
+  background:rgba(255,255,255,.16);
+  border-color:rgba(238,233,223,.9);
   transform:translateY(-2px);
 }
-.share-button svg {
-  width:16px;
-  height:16px;
+.icon-action svg {
+  width:18px;
+  height:18px;
   stroke:currentColor;
   stroke-width:1.6;
   fill:none;
@@ -462,8 +449,9 @@ section {
   stroke-linejoin:round;
 }
 .share-message {
-  min-height:17px;
-  color:rgba(238,233,223,.7);
+  min-height:18px;
+  margin:12px auto 0;
+  color:rgba(238,233,223,.72);
   font-size:12px;
   line-height:1.5;
   text-align:center;
@@ -635,23 +623,38 @@ footer {
   }
   .artwork {padding:6px}
   .modal {
-    padding:75px 15px 25px;
+    padding:75px 10px 25px;
     align-items:flex-start;
   }
   .modal-content {margin:auto}
-  .modal img {max-height:58vh}
+  .artwork-stage {
+    grid-template-columns:42px minmax(0,1fr) 42px;
+    gap:5px;
+  }
+  .artwork-image-wrap img {max-height:58vh}
+  .artwork-arrow {
+    width:38px;
+    height:38px;
+  }
+  .artwork-arrow svg {
+    width:18px;
+    height:18px;
+  }
+  .icon-action {
+    width:36px;
+    height:36px;
+  }
+  .icon-action svg {
+    width:16px;
+    height:16px;
+  }
+  .artwork-side-actions {gap:9px}
   .close {
     top:calc(12px + env(safe-area-inset-top));
     right:calc(12px + env(safe-area-inset-right));
     width:42px;
     height:42px;
   }
-  .share-area {margin:22px auto 25px}
-  .artwork-navigation {gap:7px}
-  .artwork-nav-button {gap:6px;font-size:12px}
-  .artwork-nav-circle {width:42px;height:42px}
-  .artwork-counter {font-size:9px;letter-spacing:1px}
-  .share-button {padding:10px 14px;font-size:12px}
 }
 @media(prefers-reduced-motion:reduce) {
   #intro {animation:none;display:none}
@@ -659,7 +662,7 @@ footer {
     opacity:1;
     animation:none;
   }
-  .close,.share-button,.artwork-nav-circle,.artwork-nav-button {
+  .close,.icon-action,.artwork-arrow {
     transition:none;
   }
 }
@@ -804,6 +807,7 @@ footer {
   Wort trifft Objekt · Barbara Schütze
 </footer>
 
+<!-- BILD-MODAL -->
 <div class="modal" id="modal" onclick="closeModal(event)">
 
   <button class="close"
@@ -814,49 +818,52 @@ footer {
   </button>
 
   <div class="modal-content" onclick="event.stopPropagation()">
-    <img id="modalImage" src="" alt="">
-    <h2 id="modalTitle"></h2>
-    <p id="modalDescription" class="modal-description"></p>
 
-    <!-- NEUE PFEIL-NAVIGATION -->
-    <div class="artwork-navigation">
-      <button class="artwork-nav-button previous"
+    <div class="artwork-stage">
+
+      <!-- LINKER PFEIL -->
+      <button class="artwork-arrow previous"
               id="previousArtworkButton"
               type="button"
+              aria-label="Vorheriges Kunstwerk"
+              title="Vorheriges Kunstwerk"
               onclick="navigateArtwork(-1)">
-        <span class="artwork-nav-circle">
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M19 12H5"></path>
-            <path d="m12 19-7-7 7-7"></path>
-          </svg>
-        </span>
-        <span>Zurück</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M19 12H5"></path>
+          <path d="m12 19-7-7 7-7"></path>
+        </svg>
       </button>
 
-      <div class="artwork-counter" id="artworkCounter">
-        1 / 50
+      <!-- BILD UND ZÄHLER -->
+      <div class="artwork-image-wrap">
+        <img id="modalImage" src="" alt="">
+
+        <div class="artwork-counter" id="artworkCounter">
+          1 / 50
+        </div>
       </div>
 
-      <button class="artwork-nav-button next"
-              id="nextArtworkButton"
-              type="button"
-              onclick="navigateArtwork(1)">
-        <span>Weiter</span>
-        <span class="artwork-nav-circle">
+      <!-- RECHTER PFEIL UND SYMBOL-BUTTONS -->
+      <div class="artwork-side-actions">
+
+        <button class="artwork-arrow next"
+                id="nextArtworkButton"
+                type="button"
+                aria-label="Nächstes Kunstwerk"
+                title="Nächstes Kunstwerk"
+                onclick="navigateArtwork(1)">
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <path d="M5 12h14"></path>
             <path d="m12 5 7 7-7 7"></path>
           </svg>
-        </span>
-      </button>
-    </div>
+        </button>
 
-    <!-- NEUER TEILEN-BEREICH -->
-    <div class="share-area">
-      <div class="share-actions">
-        <button class="share-button"
+        <!-- TEILEN -->
+        <button class="icon-action"
                 id="shareArtworkButton"
                 type="button"
+                aria-label="Kunstwerk teilen"
+                title="Kunstwerk teilen"
                 onclick="shareArtwork()">
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <circle cx="18" cy="5" r="3"></circle>
@@ -865,26 +872,32 @@ footer {
             <path d="m8.7 10.7 6.6-4.4"></path>
             <path d="m8.7 13.3 6.6 4.4"></path>
           </svg>
-          Kunstwerk teilen
         </button>
 
-        <button class="share-button"
+        <!-- LINK KOPIEREN -->
+        <button class="icon-action"
                 id="copyArtworkButton"
                 type="button"
+                aria-label="Link kopieren"
+                title="Link kopieren"
                 onclick="copyArtworkLink()">
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <path d="M10 13a5 5 0 0 0 7.1 0l3-3a5 5 0 0 0-7.1-7.1l-1.7 1.7"></path>
             <path d="M14 11a5 5 0 0 0-7.1 0l-3 3a5 5 0 0 0 7.1 7.1l1.7-1.7"></path>
           </svg>
-          Link kopieren
         </button>
-      </div>
 
-      <div id="shareMessage"
-           class="share-message"
-           aria-live="polite"></div>
+      </div>
     </div>
 
+    <div id="shareMessage"
+         class="share-message"
+         aria-live="polite"></div>
+
+    <h2 id="modalTitle"></h2>
+    <p id="modalDescription" class="modal-description"></p>
+
+    <!-- ADMIN-BEARBEITUNG -->
     <div id="adminEditor" class="admin-panel">
       <h3>Kunstwerk bearbeiten</h3>
 
@@ -897,9 +910,11 @@ footer {
       <button onclick="saveArtwork()">Änderungen speichern</button>
       <div id="saveMessage" class="admin-message"></div>
     </div>
+
   </div>
 </div>
 
+<!-- LOGIN -->
 <div class="login-overlay" id="loginOverlay">
   <div class="login-box">
     <button onclick="closeLogin()"
@@ -927,6 +942,7 @@ footer {
   </div>
 </div>
 
+<!-- PASSWORT ZURÜCKSETZEN -->
 <div class="recovery-overlay" id="recoveryOverlay">
   <div class="recovery-box">
     <h2>Neues Passwort festlegen</h2>
@@ -1212,7 +1228,7 @@ function updateArtworkUrl(id) {
   window.history.replaceState({}, "", url.toString());
 }
 
-/* PFEIL-NAVIGATION AKTUALISIEREN */
+/* BILDZÄHLER UND PFEILE AKTUALISIEREN */
 function updateArtworkNavigation() {
   const index = artworks.findIndex(
     a => Number(a.id) === Number(activeArtworkId)
@@ -1285,6 +1301,8 @@ function openModal(id,source) {
     artwork.description || "";
 
   document.getElementById("shareMessage").textContent = "";
+
+  document.getElementById("saveMessage").textContent = "";
 
   const editor = document.getElementById("adminEditor");
   editor.classList.toggle("visible",isAdmin);
@@ -1400,6 +1418,7 @@ async function copyArtworkLink() {
   temporaryInput.remove();
 }
 
+/* MODAL SCHLIESSEN */
 function closeModal(event) {
   if(
     !event ||
