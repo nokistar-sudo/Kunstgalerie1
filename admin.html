@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#f3f0e8">
+<title>Admin – Wort trifft Objekt</title>
+<style>
+:root{
+  --bg:#f3f0e8;--surface:#faf9f5;--text:#343b32;
+  --muted:#77796e;--accent:#66745e;--border:#dedbd0;
+  --shadow:0 12px 35px #343b320c;
+}
+body.dark{
+  --bg:#191a19;--surface:#252725;--text:#eee9df;
+  --muted:#aaa99e;--accent:#a5b39b;--border:#41443f;
+  --shadow:0 12px 35px #0003;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;background:var(--bg);color:var(--text);
+  font-family:Georgia,serif;transition:background .3s,color .3s;
+}
+button,input,textarea,select{font:inherit}
+button{
+  cursor:pointer;border:1px solid var(--border);background:var(--surface);
+  color:var(--text);padding:11px 15px;border-radius:4px;transition:.2s;
+}
+button:hover{border-color:var(--accent);transform:translateY(-1px)}
+button.primary{background:var(--accent);color:white;border-color:var(--accent)}
+button.danger{color:#a34e43}
+a{color:var(--accent)}
+.topbar{
+  height:76px;border-bottom:1px solid var(--border);display:flex;
+  align-items:center;justify-content:space-between;padding:0 30px;
+  background:var(--surface);position:sticky;top:0;z-index:10;
+}
+.brand{font-size:20px;text-decoration:none;color:var(--text)}
+.brand span{color:var(--muted);font-size:11px;letter-spacing:2px;margin-left:10px}
+.top-actions{display:flex;gap:8px;align-items:center}
+.layout{display:grid;grid-template-columns:245px minmax(0,1fr);min-height:calc(100vh - 76px)}
+.sidebar{
+  border-right:1px solid var(--border);padding:28px 16px;
+  background:var(--surface);
+}
+.side-label{
+  color:var(--muted);font-size:10px;letter-spacing:2px;
+  padding:10px 12px 14px;text-transform:uppercase;
+}
+.nav-button{
+  display:flex;align-items:center;gap:12px;width:100%;text-align:left;
+  border:0;background:transparent;padding:13px 14px;margin:3px 0;
+  color:var(--muted);border-radius:5px;
+}
+.nav-button:hover,.nav-button.active{
+  color:var(--text);background:var(--bg);transform:none;
+}
+.nav-button.active{box-shadow:inset 3px 0 var(--accent)}
+.nav-icon{width:20px;text-align:center;font-size:17px}
+.main{padding:38px clamp(20px,4vw,55px);max-width:1500px;width:100%;margin:0 auto}
+.page{display:none;animation:pageIn .35s ease}
+.page.active{display:block}
+@keyframes pageIn{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:translateY(0)}}
+.eyebrow{color:var(--accent);font-size:11px;letter-spacing:2px;text-transform:uppercase}
+h1{font-weight:normal;font-size:clamp(30px,4vw,43px);margin:10px 0}
+.lead{color:var(--muted);line-height:1.7;margin:0 0 30px}
+.cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin:25px 0}
+.stat-card,.box{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:7px;padding:22px;box-shadow:var(--shadow);
+}
+.stat-label{color:var(--muted);font-size:13px}
+.stat-value{font-size:34px;margin:14px 0 6px;font-weight:normal}
+.stat-note{color:var(--muted);font-size:11px}
+.box{margin:20px 0}
+.box h2{font-weight:normal;font-size:21px;margin:0 0 20px}
+.chart{height:190px;display:flex;align-items:flex-end;gap:9px;padding:10px 5px 0;border-bottom:1px solid var(--border)}
+.bar-wrap{flex:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:8px;min-width:0}
+.bar{width:min(28px,75%);background:var(--accent);border-radius:4px 4px 0 0;min-height:3px;transition:height .5s}
+.bar-label{font-size:10px;color:var(--muted)}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.list-row{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:15px;padding:13px 0;border-bottom:1px solid var(--border);
+}
+.list-row:last-child{border-bottom:0}
+.muted{color:var(--muted);font-size:13px}
+.field{margin:16px 0}
+.field label{display:block;font-size:13px;margin-bottom:7px;color:var(--muted)}
+.field input,.field textarea,.field select{
+  width:100%;padding:12px 13px;border:1px solid var(--border);
+  background:var(--bg);color:var(--text);border-radius:4px;
+}
+.field textarea{min-height:145px;resize:vertical;line-height:1.6}
+.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:18px}
+.status{font-size:13px;color:var(--muted);min-height:20px;margin-top:12px}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin:20px 0}
+.toolbar input{
+  flex:1;min-width:200px;padding:12px;border:1px solid var(--border);
+  background:var(--surface);color:var(--text);border-radius:4px;
+}
+.art-list{display:grid;gap:10px}
+.art-row{
+  display:grid;grid-template-columns:62px minmax(0,1fr) auto;
+  align-items:center;gap:15px;background:var(--surface);
+  border:1px solid var(--border);padding:11px;border-radius:5px;
+}
+.art-row img{width:62px;height:72px;object-fit:cover;background:var(--bg)}
+.art-name{font-size:15px}
+.art-actions{display:flex;gap:6px;flex-wrap:wrap}
+.art-actions button{padding:8px 10px;font-size:12px}
+.tag{
+  display:inline-block;padding:5px 8px;border:1px solid var(--border);
+  border-radius:20px;color:var(--muted);font-size:10px;
+}
+.tag.off{color:#a34e43}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{text-align:left;padding:13px 10px;border-bottom:1px solid var(--border)}
+th{color:var(--muted);font-weight:normal}
+.login-screen{
+  position:fixed;inset:0;z-index:50;background:var(--bg);
+  display:flex;align-items:center;justify-content:center;padding:20px;
+}
+.login-card{
+  width:100%;max-width:440px;background:var(--surface);
+  border:1px solid var(--border);padding:35px;box-shadow:var(--shadow);
+}
+.login-card h1{text-align:center;font-size:32px}
+.login-card .lead{text-align:center}
+.login-card button{width:100%;margin-top:12px}
+.login-card input{
+  width:100%;padding:13px;border:1px solid var(--border);
+  background:var(--bg);color:var(--text);border-radius:4px;
+}
+.login-status{text-align:center;font-size:13px;line-height:1.5;color:var(--muted);margin-top:15px}
+.hidden{display:none!important}
+.notice{
+  padding:14px 16px;background:var(--bg);border:1px solid var(--border);
+  color:var(--muted);font-size:13px;line-height:1.6;border-radius:5px;
+}
+.mobile-nav{display:none}
+@media(max-width:950px){
+  .cards{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .layout{grid-template-columns:205px minmax(0,1fr)}
+  .split{grid-template-columns:1fr}
+}
+@media(max-width:650px){
+  .topbar{height:65px;padding:0 14px}
+  .brand{font-size:16px}.brand span{display:none}
+  .top-actions button{padding:8px;font-size:12px}
+  .layout{display:block;min-height:calc(100vh - 65px)}
+  .sidebar{
+    display:flex;overflow-x:auto;padding:8px;border-right:0;
+    border-bottom:1px solid var(--border);position:sticky;top:65px;z-index:8;
+  }
+  .side-label{display:none}
+  .nav-button{width:auto;white-space:nowrap;padding:10px 12px;font-size:12px}
+  .nav-button.active{box-shadow:inset 0 -2px var(--accent)}
+  .main{padding:25px 15px}
+  .cards{gap:9px}
+  .stat-card{padding:15px}
+  .stat-value{font-size:27px}
+  .art-row{grid-template-columns:48px minmax(0,1fr)}
+  .art-row img{width:48px;height:58px}
+  .art-actions{grid-column:2}
+  .art-actions button{padding:7px}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
+}
+</style>
+</head>
+<body>
+
+<div class="login-screen" id="loginScreen">
+  <div class="login-card">
+    <div class="eyebrow" style="text-align:center">WORT TRIFFT OBJEKT</div>
+    <h1>Admin-Anmeldung</h1>
+    <p class="lead">Melde dich an, um die digitale Ausstellung zu verwalten.</p>
+    <form id="loginForm">
+      <div class="field">
+        <label for="email">E-Mail-Adresse</label>
+        <input id="email" type="email" required autocomplete="username">
+      </div>
+      <div class="field">
+        <label for="password">Passwort</label>
+        <input id="password" type="password" required autocomplete="current-password">
+      </div>
+      <button class="primary" type="submit">Anmelden</button>
+    </form>
+    <div class="login-status" id="loginStatus">Nur berechtigte Administratoren können diesen Bereich öffnen.</div>
+    <p class="muted" style="text-align:center;margin-top:18px">
+      <a href="./index.html">Zurück zur Ausstellung</a>
+    </p>
+  </div>
+</div>
+
+<div class="login-screen hidden" id="recoveryScreen">
+  <div class="login-card">
+    <div class="eyebrow" style="text-align:center">KONTO SICHERHEIT</div>
+    <h1>Neues Passwort</h1>
+    <p class="lead">Lege ein neues Passwort für dein Admin-Konto fest.</p>
+    <form id="recoveryForm">
+      <div class="field">
+        <label for="newPassword">Neues Passwort</label>
+        <input id="newPassword" type="password" minlength="8" required autocomplete="new-password">
+      </div>
+      <div class="field">
+        <label for="confirmPassword">Passwort wiederholen</label>
+        <input id="confirmPassword" type="password" minlength="8" required autocomplete="new-password">
+      </div>
+      <button class="primary" type="submit">Passwort speichern</button>
+    </form>
+    <div class="login-status" id="recoveryStatus"></div>
+  </div>
+</div>
+
+<div id="adminApp" class="hidden">
+  <header class="topbar">
+    <a class="brand" href="./index.html">Wort trifft Objekt <span>VERWALTUNG</span></a>
+    <div class="top-actions">
+      <button onclick="toggleTheme()" id="themeButton">☾ Dunkel</button>
+      <a href="./index.html"><button>Website ansehen ↗</button></a>
+      <button onclick="logout()" class="danger">Abmelden</button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="side-label">Verwaltung</div>
+      <button class="nav-button active" data-page="dashboard" onclick="showSection('dashboard',this)"><span class="nav-icon">▦</span>Dashboard</button>
+      <button class="nav-button" data-page="artworks" onclick="showSection('artworks',this)"><span class="nav-icon">▧</span>Kunstwerke</button>
+      <button class="nav-button" data-page="artist" onclick="showSection('artist',this)"><span class="nav-icon">◉</span>Künstlerprofil</button>
+      <button class="nav-button" data-page="homepage" onclick="showSection('homepage',this)"><span class="nav-icon">⌂</span>Startseite</button>
+      <button class="nav-button" data-page="settings" onclick="showSection('settings',this)"><span class="nav-icon">⚙</span>Einstellungen</button>
+      <button class="nav-button" data-page="admins" onclick="showSection('admins',this)"><span class="nav-icon">♙</span>Admin-Verwaltung</button>
+    </aside>
+
+    <main class="main">
+
+      <section class="page active" id="page-dashboard">
+        <div class="eyebrow">ÜBERSICHT</div>
+        <h1>Dashboard</h1>
+        <p class="lead">Willkommen in der Verwaltung von Wort trifft Objekt.</p>
+
+        <div class="cards">
+          <div class="stat-card">
+            <div class="stat-label">Besucher heute</div>
+            <div class="stat-value" id="visitorsToday">–</div>
+            <div class="stat-note">Unterschiedliche Browser-Kennungen</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Besucher insgesamt</div>
+            <div class="stat-value" id="visitorsTotal">–</div>
+            <div class="stat-note">Seit Beginn der Messung</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Seitenaufrufe</div>
+            <div class="stat-value" id="viewsTotal">–</div>
+            <div class="stat-note">Erfasste Galerieaufrufe</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Kunstwerk-Aufrufe</div>
+            <div class="stat-value" id="artViews">–</div>
+            <div class="stat-note">Geöffnete Kunstwerke</div>
+          </div>
+        </div>
+
+        <div class="box">
+          <h2>Besucherentwicklung · letzte 7 Tage</h2>
+          <div class="chart" id="visitorChart"></div>
+          <p class="muted" id="chartMessage">Die Statistik wird geladen.</p>
+        </div>
+
+        <div class="split">
+          <div class="box">
+            <h2>Beliebteste Kunstwerke</h2>
+            <div id="popularArtworks" class="muted">Wird geladen ...</div>
+          </div>
+          <div class="box">
+            <h2>Aktueller Bestand</h2>
+            <div class="list-row"><span>Alle Kunstwerke</span><strong id="artCount">–</strong></div>
+            <div class="list-row"><span>Sichtbare Werke</span><strong id="visibleCount">–</strong></div>
+            <div class="list-row"><span>Ausgeblendete Werke</span><strong id="hiddenCount">–</strong></div>
+          </div>
+        </div>
+        <div class="notice">Die Statistik beginnt mit der Aktivierung dieser Funktion. Frühere Besuche können nicht rückwirkend erfasst werden.</div>
+        <div class="actions"><button onclick="loadDashboard()">Statistik aktualisieren ↻</button></div>
+      </section>
+
+      <section class="page" id="page-artworks">
+        <div class="eyebrow">INHALTE</div>
+        <h1>Kunstwerke verwalten</h1>
+        <p class="lead">Bearbeite Titel und Beschreibungen oder blende Werke in der öffentlichen Galerie aus.</p>
+        <div class="toolbar">
+          <input id="artSearch" placeholder="Kunstwerk suchen ..." oninput="renderAdminArtworks()">
+          <button class="primary" onclick="showAddArtwork()">+ Eintrag hinzufügen</button>
+        </div>
+
+        <div class="box hidden" id="addArtworkBox">
+          <h2>Neues Kunstwerk anlegen</h2>
+          <p class="muted">Lade das Bild zuerst in GitHub in den Ordner <b>bilder</b> hoch. Verwende den Dateinamen <b>bild[Nummer].jpg</b>.</p>
+          <div class="field"><label for="newArtworkId">Bildnummer / ID</label><input id="newArtworkId" type="number" min="1"></div>
+          <div class="field"><label for="newArtworkTitle">Titel</label><input id="newArtworkTitle" maxlength="200"></div>
+          <div class="field"><label for="newArtworkDescription">Beschreibung</label><textarea id="newArtworkDescription"></textarea></div>
+          <div class="actions">
+            <button class="primary" onclick="createArtwork()">Eintrag speichern</button>
+            <button onclick="document.getElementById('addArtworkBox').classList.add('hidden')">Abbrechen</button>
+          </div>
+          <div class="status" id="addArtworkStatus"></div>
+        </div>
+        <div class="art-list" id="artList">Kunstwerke werden geladen ...</div>
+      </section>
+
+      <section class="page" id="page-artist">
+        <div class="eyebrow">INHALTE</div>
+        <h1>Künstlerprofil</h1>
+        <p class="lead">Hier bearbeitest du die Seite „Über die Künstlerin“.</p>
+        <div class="box">
+          <div class="field"><label for="artistTitleInput">Überschrift</label><input id="artistTitleInput" maxlength="200"></div>
+          <div class="field"><label for="artistDescriptionInput">Beschreibung</label><textarea id="artistDescriptionInput"></textarea></div>
+          <div class="actions"><button class="primary" onclick="saveArtist()">Änderungen speichern</button></div>
+          <div class="status" id="artistStatus"></div>
+        </div>
+      </section>
+
+      <section class="page" id="page-homepage">
+        <div class="eyebrow">GESTALTUNG</div>
+        <h1>Startseite bearbeiten</h1>
+        <p class="lead">Passe die Begrüßung und die Unterzeile der öffentlichen Website an.</p>
+        <div class="box">
+          <div class="field"><label for="welcomeTitle">Hauptüberschrift</label><input id="welcomeTitle" maxlength="200"></div>
+          <div class="field"><label for="welcomeSubtitle">Unterzeile</label><input id="welcomeSubtitle" maxlength="250"></div>
+          <div class="field"><label for="welcomeText">Begrüßungstext</label><textarea id="welcomeText"></textarea></div>
+          <div class="actions"><button class="primary" onclick="saveHomepage()">Startseite speichern</button></div>
+          <div class="status" id="homepageStatus"></div>
+        </div>
+      </section>
+
+      <section class="page" id="page-settings">
+        <div class="eyebrow">KONFIGURATION</div>
+        <h1>Website-Einstellungen</h1>
+        <p class="lead">Allgemeine Informationen und Anzeigeoptionen.</p>
+        <div class="box">
+          <h2>Darstellung</h2>
+          <div class="list-row"><span>Helles / dunkles Design</span><button onclick="toggleTheme()">Darstellung wechseln</button></div>
+          <div class="list-row"><span>Öffentliche Galerie</span><a href="./index.html">Website öffnen ↗</a></div>
+          <div class="list-row"><span>PDF-Katalog</span><a href="./Kunstkatalog.pdf" target="_blank" rel="noopener">PDF öffnen ↗</a></div>
+        </div>
+        <div class="box">
+          <h2>Statistik und Datenschutz</h2>
+          <p class="muted">Die Website verwendet eine zufällige Browser-Kennung, um wiederkehrende Besuche näherungsweise zu unterscheiden. Es werden in dieser Implementierung keine Namen, E-Mail-Adressen oder IP-Adressen in der Statistik-Tabelle gespeichert.</p>
+          <p class="muted">Besucher können ihre lokale Kennung löschen, indem sie die Website-Daten ihres Browsers entfernen. Dadurch können sie bei einem späteren Besuch erneut als neuer Browser gezählt werden.</p>
+        </div>
+      </section>
+
+      <section class="page" id="page-admins">
+        <div class="eyebrow">ZUGRIFF</div>
+        <h1>Admin-Verwaltung</h1>
+        <p class="lead">Verwalte die Berechtigungen deiner Administratoren über Supabase.</p>
+        <div class="box">
+          <h2>So funktioniert die Admin-Berechtigung</h2>
+          <p class="muted">Die Berechtigung wird nicht durch eine E-Mail-Adresse im Website-Code vergeben. Entscheidend ist ausschließlich die Tabelle <b>admins</b> in Supabase.</p>
+          <div class="notice">
+            Um einen weiteren Administrator hinzuzufügen:
+            <ol>
+              <li>Öffne Supabase → Authentication → Users.</li>
+              <li>Lege den Benutzer dort an oder prüfe, ob er bereits existiert.</li>
+              <li>Kopiere seine User-UUID.</li>
+              <li>Füge diese UUID in die Tabelle <b>admins</b> in der Spalte <b>user_id</b> ein.</li>
+            </ol>
+            Entferne eine UUID aus dieser Tabelle, um die Admin-Berechtigung zu entziehen.
+          </div>
+          <p class="muted">Deine bestehenden Admin-Konten bleiben bestehen, solange ihre UUIDs in der Tabelle stehen.</p>
+          <a href="https://supabase.com/dashboard/project/wurunvcuikmjaehkdcvb/auth/users" target="_blank" rel="noopener">Supabase Benutzerverwaltung öffnen ↗</a>
+        </div>
+        <div class="box">
+          <h2>Sicherheit</h2>
+          <p class="muted">Gib niemals einen Supabase service_role-Schlüssel in den Website-Code ein. Der öffentliche Publishable Key ist für die Browser-Anwendung vorgesehen; die tatsächlichen Rechte werden über Supabase-Richtlinien geprüft.</p>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL="https://wurunvcuikmjaehkdcvb.supabase.co";
+const SUPABASE_KEY="sb_publishable_qtIp3RDWWXOSKx2Mu-vxvA_tyabauCd";
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+
+let currentUser=null;
+let adminArtworks=[];
+let artistData=null;
+let homeData=null;
+let allEvents=[];
+
+const $=id=>document.getElementById(id);
+
+function setStatus(id,message){$(id).textContent=message}
+
+function toggleTheme(){
+  document.body.classList.toggle("dark");
+  const dark=document.body.classList.contains("dark");
+  $("themeButton").textContent=dark?"☀ Hell":"☾ Dunkel";
+  try{localStorage.setItem("kunstgalerie-theme",dark?"dark":"light")}catch(e){}
+}
+try{
+  if(localStorage.getItem("kunstgalerie-theme")==="dark"){
+    document.body.classList.add("dark");
+    $("themeButton").textContent="☀ Hell";
+  }
+}catch(e){}
+
+function showSection(name,button){
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  $("page-"+name).classList.add("active");
+  document.querySelectorAll(".nav-button").forEach(b=>b.classList.remove("active"));
+  if(button)button.classList.add("active");
+  if(name==="dashboard")loadDashboard();
+  if(name==="artworks")loadAdminArtworks();
+  if(name==="artist")loadArtist();
+  if(name==="homepage")loadHomepage();
+}
+
+async function verifyAdmin(user){
+  if(!user)return false;
+  const {data,error}=await db.from("admins").select("user_id").eq("user_id",user.id).maybeSingle();
+  return !error&&!!data;
+}
+
+async function showApp(user){
+  const allowed=await verifyAdmin(user);
+  if(!allowed){
+    await db.auth.signOut();
+    $("loginScreen").classList.remove("hidden");
+    $("adminApp").classList.add("hidden");
+    setStatus("loginStatus","Dieses Konto besitzt keine Admin-Berechtigung.");
+    return;
+  }
+  currentUser=user;
+  $("loginScreen").classList.add("hidden");
+  $("recoveryScreen").classList.add("hidden");
+  $("adminApp").classList.remove("hidden");
+  await Promise.all([loadDashboard(),loadAdminArtworks()]);
+}
+
+$("loginForm").addEventListener("submit",async event=>{
+  event.preventDefault();
+  setStatus("loginStatus","Anmeldung läuft ...");
+  const {data,error}=await db.auth.signInWithPassword({
+    email:$("email").value.trim(),
+    password:$("password").value
+  });
+  if(error){
+    setStatus("loginStatus","Anmeldung fehlgeschlagen: "+error.message);
+    return;
+  }
+  await showApp(data.user);
+});
+
+$("recoveryForm").addEventListener("submit",async event=>{
+  event.preventDefault();
+  const password=$("newPassword").value;
+  const confirm=$("confirmPassword").value;
+  if(password.length<8){setStatus("recoveryStatus","Das Passwort muss mindestens 8 Zeichen lang sein.");return}
+  if(password!==confirm){setStatus("recoveryStatus","Die Passwörter stimmen nicht überein.");return}
+  setStatus("recoveryStatus","Passwort wird gespeichert ...");
+  const {error}=await db.auth.updateUser({password});
+  if(error){setStatus("recoveryStatus","Fehler: "+error.message);return}
+  $("recoveryScreen").classList.add("hidden");
+  $("loginScreen").classList.remove("hidden");
+  setStatus("loginStatus","Passwort geändert. Bitte melde dich erneut an.");
+});
+
+db.auth.onAuthStateChange((event,session)=>{
+  if(event==="PASSWORD_RECOVERY"){
+    $("loginScreen").classList.add("hidden");
+    $("recoveryScreen").classList.remove("hidden");
+    return;
+  }
+  if(event==="SIGNED_OUT"){
+    currentUser=null;
+    $("adminApp").classList.add("hidden");
+    $("loginScreen").classList.remove("hidden");
+  }
+});
+
+async function initialize(){
+  const {data,error}=await db.auth.getSession();
+  if(error)console.error(error);
+  if(data.session?.user)await showApp(data.session.user);
+}
+initialize();
+
+async function logout(){
+  await db.auth.signOut();
+  currentUser=null;
+  $("adminApp").classList.add("hidden");
+  $("loginScreen").classList.remove("hidden");
+  setStatus("loginStatus","Du wurdest abgemeldet.");
+}
+
+/* STATISTIK */
+function startOfDay(date){
+  const d=new Date(date);
+  d.setHours(0,0,0,0);
+  return d;
+}
+function formatNumber(value){return Number(value||0).toLocaleString("de-DE")}
+
+async function loadDashboard(){
+  if(!currentUser)return;
+  $("visitorChart").innerHTML="";
+  $("chartMessage").textContent="Statistik wird geladen ...";
+
+  const {data,error}=await db.from("visitor_events")
+    .select("visitor_id,event_type,artwork_id,created_at")
+    .order("created_at",{ascending:false})
+    .limit(10000);
+
+  if(error){
+    console.error(error);
+    $("chartMessage").textContent="Statistik konnte nicht geladen werden. Prüfe die SQL-Richtlinien.";
+    return;
+  }
+  allEvents=data||[];
+
+  const now=new Date();
+  const today=startOfDay(now);
+  const todayEvents=allEvents.filter(e=>new Date(e.created_at)>=today);
+  const pageViews=allEvents.filter(e=>e.event_type==="page_view");
+  const artViews=allEvents.filter(e=>e.event_type==="artwork_view");
+  const uniqueAll=new Set(allEvents.map(e=>e.visitor_id));
+  const uniqueToday=new Set(todayEvents.map(e=>e.visitor_id));
+
+  $("visitorsToday").textContent=formatNumber(uniqueToday.size);
+  $("visitorsTotal").textContent=formatNumber(uniqueAll.size);
+  $("viewsTotal").textContent=formatNumber(pageViews.length);
+  $("artViews").textContent=formatNumber(artViews.length);
+
+  const dates=[];
+  for(let i=6;i>=0;i--){
+    const d=new Date(now);
+    d.setDate(d.getDate()-i);
+    dates.push(startOfDay(d));
+  }
+  const counts=dates.map(day=>{
+    const next=new Date(day);next.setDate(next.getDate()+1);
+    return new Set(allEvents.filter(e=>{
+      const t=new Date(e.created_at);
+      return e.event_type==="page_view"&&t>=day&&t<next;
+    }).map(e=>e.visitor_id)).size;
+  });
+  const max=Math.max(1,...counts);
+  $("visitorChart").innerHTML="";
+  dates.forEach((day,i)=>{
+    const wrap=document.createElement("div");wrap.className="bar-wrap";
+    const bar=document.createElement("div");bar.className="bar";
+    bar.style.height=Math.max(3,counts[i]/max*100)+"%";
+    bar.title=counts[i]+" Besucher";
+    const label=document.createElement("div");label.className="bar-label";
+    label.textContent=day.toLocaleDateString("de-DE",{weekday:"short"});
+    wrap.append(bar,label);$("visitorChart").append(wrap);
+  });
+  $("chartMessage").textContent="Angezeigt werden anonyme Browser-Kennungen mit mindestens einem Seitenaufruf pro Tag.";
+
+  const countsByArtwork={};
+  artViews.forEach(e=>{
+    if(e.artwork_id)countsByArtwork[e.artwork_id]=(countsByArtwork[e.artwork_id]||0)+1;
+  });
+  const popular=Object.entries(countsByArtwork).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  $("popularArtworks").innerHTML="";
+  if(!popular.length){
+    $("popularArtworks").textContent="Noch keine Kunstwerk-Aufrufe erfasst.";
+  }else{
+    popular.forEach(([id,count],index)=>{
+      const row=document.createElement("div");row.className="list-row";
+      const name=document.createElement("span");name.textContent=(index+1)+". Kunstwerk "+id;
+      const number=document.createElement("strong");number.textContent=formatNumber(count);
+      row.append(name,number);$("popularArtworks").append(row);
+    });
+  }
+  await loadAdminArtworks(false);
+}
+
+/* KUNSTWERKE */
+async function loadAdminArtworks(refreshDashboard=true){
+  if(!currentUser)return;
+  const {data,error}=await db.from("artworks")
+    .select("id,title,description,is_visible,updated_at")
+    .order("id");
+  if(error){
+    $("artList").textContent="Fehler beim Laden: "+error.message;
+    return;
+  }
+  adminArtworks=data||[];
+  renderAdminArtworks();
+  $("artCount").textContent=adminArtworks.length;
+  $("visibleCount").textContent=adminArtworks.filter(a=>a.is_visible!==false).length;
+  $("hiddenCount").textContent=adminArtworks.filter(a=>a.is_visible===false).length;
+}
+
+function renderAdminArtworks(){
+  const list=$("artList");list.innerHTML="";
+  const query=($("artSearch")?.value||"").toLowerCase();
+  const items=adminArtworks.filter(a=>
+    [a.id,a.title,a.description].join(" ").toLowerCase().includes(query)
+  );
+  if(!items.length){list.textContent="Keine passenden Kunstwerke gefunden.";return}
+  items.forEach(a=>{
+    const row=document.createElement("div");row.className="art-row";
+    const img=document.createElement("img");
+    img.src=`./bilder/bild${a.id}.jpg`;img.alt=a.title||"Kunstwerk";
+    img.onerror=()=>img.style.opacity=".2";
+    const info=document.createElement("div");
+    const name=document.createElement("div");name.className="art-name";
+    name.textContent=`${a.id}. ${a.title||"Ohne Titel"}`;
+    const status=document.createElement("span");
+    status.className="tag"+(a.is_visible===false?" off":"");
+    status.textContent=a.is_visible===false?"Ausgeblendet":"Öffentlich sichtbar";
+    info.append(name,status);
+    const actions=document.createElement("div");actions.className="art-actions";
+    const edit=document.createElement("button");edit.textContent="Bearbeiten";edit.onclick=()=>editArtwork(a.id);
+    const toggle=document.createElement("button");
+    toggle.textContent=a.is_visible===false?"Einblenden":"Ausblenden";
+    toggle.onclick=()=>toggleArtworkVisibility(a.id,a.is_visible!==false);
+    actions.append(edit,toggle);
+    row.append(img,info,actions);list.append(row);
+  });
+}
+
+async function editArtwork(id){
+  const a=adminArtworks.find(x=>Number(x.id)===Number(id));
+  if(!a)return;
+  const title=prompt("Titel des Kunstwerks:",a.title||"");
+  if(title===null)return;
+  const description=prompt("Beschreibung des Kunstwerks:",a.description||"");
+  if(description===null)return;
+  if(!title.trim()){alert("Bitte gib einen Titel ein.");return}
+  const {error}=await db.from("artworks").update({
+    title:title.trim(),description:description.trim(),updated_at:new Date().toISOString()
+  }).eq("id",id);
+  if(error){alert("Speichern fehlgeschlagen: "+error.message);return}
+  await loadAdminArtworks();
+}
+
+async function toggleArtworkVisibility(id,visible){
+  const action=visible?"ausblenden":"einblenden";
+  if(!confirm("Möchtest du dieses Kunstwerk wirklich "+action+"?"))return;
+  const {error}=await db.from("artworks").update({
+    is_visible:!visible,updated_at:new Date().toISOString()
+  }).eq("id",id);
+  if(error){alert("Änderung fehlgeschlagen: "+error.message);return}
+  await loadAdminArtworks();
+}
+
+function showAddArtwork(){
+  $("addArtworkBox").classList.remove("hidden");
+  const next=Math.max(0,...adminArtworks.map(a=>Number(a.id)||0))+1;
+  $("newArtworkId").value=next;
+  $("newArtworkTitle").value="";
+  $("newArtworkDescription").value="";
+  setStatus("addArtworkStatus","Bitte lade vorher die Bilddatei bild"+next+".jpg in deinen GitHub-Ordner bilder hoch.");
+}
+
+async function createArtwork(){
+  const id=Number($("newArtworkId").value);
+  const title=$("newArtworkTitle").value.trim();
+  const description=$("newArtworkDescription").value.trim();
+  if(!Number.isInteger(id)||id<1||!title){
+    setStatus("addArtworkStatus","Bitte gib eine gültige Bildnummer und einen Titel ein.");return;
+  }
+  if(adminArtworks.some(a=>Number(a.id)===id)){
+    setStatus("addArtworkStatus","Diese Bildnummer existiert bereits.");return;
+  }
+  setStatus("addArtworkStatus","Eintrag wird gespeichert ...");
+  const {error}=await db.from("artworks").insert({
+    id,title,description,is_visible:true,updated_at:new Date().toISOString()
+  });
+  if(error){
+    setStatus("addArtworkStatus","Fehler: "+error.message);return;
+  }
+  setStatus("addArtworkStatus","Kunstwerk-Eintrag wurde angelegt.");
+  await loadAdminArtworks();
+}
+
+/* KÜNSTLERPROFIL */
+async function loadArtist(){
+  const {data,error}=await db.from("artist_profile")
+    .select("id,title,description").eq("id",1).single();
+  if(error){setStatus("artistStatus","Profil konnte nicht geladen werden: "+error.message);return}
+  artistData=data;
+  $("artistTitleInput").value=data.title||"";
+  $("artistDescriptionInput").value=data.description||"";
+}
+async function saveArtist(){
+  const title=$("artistTitleInput").value.trim();
+  const description=$("artistDescriptionInput").value.trim();
+  if(!title||!description){setStatus("artistStatus","Bitte fülle beide Felder aus.");return}
+  setStatus("artistStatus","Speichern läuft ...");
+  const {data,error}=await db.from("artist_profile").update({
+    title,description,updated_at:new Date().toISOString()
+  }).eq("id",1).select().single();
+  if(error){setStatus("artistStatus","Fehler: "+error.message);return}
+  artistData=data;
+  setStatus("artistStatus","Künstlerprofil erfolgreich gespeichert.");
+}
+
+/* STARTSEITE */
+async function loadHomepage(){
+  const {data,error}=await db.from("site_settings")
+    .select("id,welcome_title,welcome_subtitle,welcome_text")
+    .eq("id",1).single();
+  if(error){setStatus("homepageStatus","Einstellungen konnten nicht geladen werden: "+error.message);return}
+  homeData=data;
+  $("welcomeTitle").value=data.welcome_title||"";
+  $("welcomeSubtitle").value=data.welcome_subtitle||"";
+  $("welcomeText").value=data.welcome_text||"";
+}
+async function saveHomepage(){
+  const welcome_title=$("welcomeTitle").value.trim();
+  const welcome_subtitle=$("welcomeSubtitle").value.trim();
+  const welcome_text=$("welcomeText").value.trim();
+  if(!welcome_title||!welcome_subtitle){setStatus("homepageStatus","Überschrift und Unterzeile dürfen nicht leer sein.");return}
+  setStatus("homepageStatus","Speichern läuft ...");
+  const {error}=await db.from("site_settings").update({
+    welcome_title,welcome_subtitle,welcome_text,updated_at:new Date().toISOString()
+  }).eq("id",1);
+  if(error){setStatus("homepageStatus","Fehler: "+error.message);return}
+  setStatus("homepageStatus","Startseitentexte erfolgreich gespeichert.");
+}
+</script>
+</body>
+</html>
