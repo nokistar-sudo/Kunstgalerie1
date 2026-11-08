@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -246,6 +245,48 @@ section {
 .panel.active {display:block}
 #gallerySection.hidden {display:none}
 
+/* ARTIST EDITOR */
+.artist-editor {
+  display:none;
+  max-width:650px;
+  margin:35px auto 0;
+  padding:22px;
+  background:var(--bg);
+  border:1px solid var(--border);
+  text-align:left;
+}
+.artist-editor.visible {display:block}
+.artist-editor h3 {
+  font-weight:normal;
+  text-align:center;
+}
+.artist-editor label {
+  display:block;
+  margin:15px 0 6px;
+  font-size:14px;
+}
+.artist-editor input,
+.artist-editor textarea {
+  width:100%;
+  padding:12px;
+  border:1px solid var(--border);
+  background:var(--surface);
+  color:var(--text);
+  font-family:inherit;
+  font-size:15px;
+  border-radius:3px;
+}
+.artist-editor textarea {
+  min-height:180px;
+  resize:vertical;
+}
+.artist-message {
+  font-size:13px;
+  color:var(--muted);
+  text-align:center;
+  margin-top:12px;
+}
+
 /* IMAGE MODAL */
 .modal {
   display:none;
@@ -285,7 +326,7 @@ section {
   font-size:22px;
 }
 
-/* ADMIN */
+/* ARTWORK ADMIN */
 .admin-panel {
   display:none;
   max-width:600px;
@@ -490,7 +531,6 @@ footer {
       ☾ Dunkel
     </button>
 
-    <!-- FEHLER KORRIGIERT: openLogin() -->
     <button id="adminButton"
             onclick="openLogin()"
             style="display:inline-block">
@@ -549,13 +589,16 @@ footer {
 </section>
 
 <section id="aboutSection" class="panel">
-  <h2 class="section-title">Über die Künstlerin</h2>
+  <h2 class="section-title" id="artistTitle">Über die Künstlerin</h2>
+
   <p><strong>Barbara Schütze</strong></p>
-  <p>
+
+  <p id="artistDescription">
     Ein Einblick in die Künstlerin, ihre Gedanken und ihre kreative Arbeit.
     Jedes Objekt erzählt seine eigene Geschichte und eröffnet einen neuen
     Blick auf die kleinen und großen Dinge des Lebens.
   </p>
+
   <p>
     Kontakt:
     <a href="mailto:ba.schuetze@web.de"
@@ -563,6 +606,35 @@ footer {
       ba.schuetze@web.de
     </a>
   </p>
+
+  <!-- Nur für angemeldete Admins sichtbar -->
+  <div id="artistEditArea" style="display:none">
+    <button onclick="toggleArtistEditor()">
+      Künstlerbeschreibung bearbeiten
+    </button>
+
+    <div id="artistEditor" class="artist-editor">
+      <h3>Künstlerbeschreibung bearbeiten</h3>
+
+      <label for="artistTitleInput">Überschrift</label>
+      <input id="artistTitleInput" maxlength="200">
+
+      <label for="artistDescriptionInput">
+        Beschreibung
+      </label>
+      <textarea id="artistDescriptionInput"></textarea>
+
+      <button onclick="saveArtistProfile()">
+        Änderungen speichern
+      </button>
+
+      <button onclick="toggleArtistEditor(false)">
+        Abbrechen
+      </button>
+
+      <div id="artistSaveMessage" class="artist-message"></div>
+    </div>
+  </div>
 </section>
 
 <footer>
@@ -665,6 +737,11 @@ const SUPABASE_URL =
 const SUPABASE_KEY =
   "sb_publishable_qtIp3RDWWXOSKx2Mu-vxvA_tyabauCd";
 
+// E-Mail-Adresse für den späteren zweiten Admin.
+// Die tatsächliche Berechtigung wird ausschließlich
+// über die admins-Tabelle in Supabase geprüft.
+const SECOND_ADMIN_EMAIL = "ba.schuetze@web.de";
+
 const supabaseClient = window.supabase.createClient(
   SUPABASE_URL,
   SUPABASE_KEY,
@@ -682,6 +759,12 @@ let isAdmin = false;
 let activeArtworkId = null;
 let recoveryActive = false;
 
+let artistProfile = {
+  id:1,
+  title:"Über die Künstlerin",
+  description:"Ein Einblick in die Künstlerin, ihre Gedanken und ihre kreative Arbeit. Jedes Objekt erzählt seine eigene Geschichte und eröffnet einen neuen Blick auf die kleinen und großen Dinge des Lebens."
+};
+
 function defaultArtworks() {
   return Array.from({length:50},(_,i)=>({
     id:i+1,
@@ -690,6 +773,7 @@ function defaultArtworks() {
   }));
 }
 
+/* KUNSTWERKE LADEN */
 async function loadArtworks() {
   try {
     const {data,error} = await supabaseClient
@@ -711,6 +795,114 @@ async function loadArtworks() {
   renderGallery();
 }
 
+/* KÜNSTLERPROFIL LADEN */
+async function loadArtistProfile() {
+  try {
+    const {data,error} = await supabaseClient
+      .from("artist_profile")
+      .select("id,title,description")
+      .eq("id",1)
+      .single();
+
+    if(error) throw error;
+
+    if(data) {
+      artistProfile = data;
+    }
+
+  } catch(error) {
+    console.error("Fehler beim Laden des Künstlerprofils:",error);
+  }
+
+  renderArtistProfile();
+}
+
+/* KÜNSTLERPROFIL ANZEIGEN */
+function renderArtistProfile() {
+  document.getElementById("artistTitle").textContent =
+    artistProfile.title || "Über die Künstlerin";
+
+  document.getElementById("artistDescription").textContent =
+    artistProfile.description || "";
+}
+
+/* BEARBEITUNGSBEREICH ÖFFNEN */
+function toggleArtistEditor(forceState) {
+  if(!isAdmin) return;
+
+  const editor = document.getElementById("artistEditor");
+
+  const shouldOpen =
+    typeof forceState === "boolean"
+      ? forceState
+      : !editor.classList.contains("visible");
+
+  if(shouldOpen) {
+    document.getElementById("artistTitleInput").value =
+      artistProfile.title || "";
+
+    document.getElementById("artistDescriptionInput").value =
+      artistProfile.description || "";
+
+    document.getElementById("artistSaveMessage").textContent = "";
+    editor.classList.add("visible");
+  } else {
+    editor.classList.remove("visible");
+  }
+}
+
+/* KÜNSTLERPROFIL SPEICHERN */
+async function saveArtistProfile() {
+  if(!isAdmin) return;
+
+  const title =
+    document.getElementById("artistTitleInput").value.trim();
+
+  const description =
+    document.getElementById("artistDescriptionInput").value.trim();
+
+  const message =
+    document.getElementById("artistSaveMessage");
+
+  if(!title || !description) {
+    message.textContent =
+      "Bitte fülle Überschrift und Beschreibung aus.";
+    return;
+  }
+
+  message.textContent = "Speichern läuft ...";
+
+  const {data,error} = await supabaseClient
+    .from("artist_profile")
+    .update({
+      title,
+      description,
+      updated_at:new Date().toISOString()
+    })
+    .eq("id",1)
+    .select()
+    .single();
+
+  if(error) {
+    console.error("Fehler beim Speichern:",error);
+    message.textContent =
+      "Speichern fehlgeschlagen. Bitte überprüfe deine Admin-Rechte und die Supabase-Tabelle.";
+    return;
+  }
+
+  artistProfile = data;
+  renderArtistProfile();
+
+  message.textContent = "Änderungen erfolgreich gespeichert.";
+
+  setTimeout(() => {
+    if(isAdmin) {
+      document.getElementById("artistEditor").classList.remove("visible");
+    }
+  },1200);
+}
+
+/* GALERIE */
 function renderGallery() {
   const gallery = document.getElementById("gallery");
   gallery.innerHTML = "";
@@ -771,6 +963,7 @@ function searchArtworks() {
     visible === 0 ? "block" : "none";
 }
 
+/* BILD-MODAL */
 function openModal(id,source) {
   activeArtworkId = id;
 
@@ -806,6 +999,7 @@ function closeModal(event) {
   }
 }
 
+/* NAVIGATION */
 function showPage(page) {
   const gallerySection =
     document.getElementById("gallerySection");
@@ -824,6 +1018,7 @@ function showPage(page) {
   window.scrollTo({top:0,behavior:"smooth"});
 }
 
+/* HELL / DUNKEL */
 function toggleTheme() {
   document.body.classList.toggle("dark");
 
@@ -847,6 +1042,7 @@ try {
   }
 } catch(e) {}
 
+/* LOGIN */
 function openLogin() {
   if(isAdmin) return;
 
@@ -860,6 +1056,7 @@ function closeLogin() {
   document.getElementById("loginOverlay").classList.remove("open");
 }
 
+/* ADMIN-RECHTE PRÜFEN */
 async function checkAdmin(user) {
   isAdmin = false;
 
@@ -881,6 +1078,14 @@ async function checkAdmin(user) {
   document.getElementById("logoutButton").style.display =
     isAdmin ? "inline-block" : "none";
 
+  // Künstler-Bearbeitung nur für angemeldete Admins
+  document.getElementById("artistEditArea").style.display =
+    isAdmin ? "block" : "none";
+
+  if(!isAdmin) {
+    document.getElementById("artistEditor").classList.remove("visible");
+  }
+
   const editor = document.getElementById("adminEditor");
 
   editor.classList.toggle(
@@ -901,6 +1106,7 @@ async function checkAdmin(user) {
   }
 }
 
+/* ANMELDEN */
 async function loginAdmin(event) {
   event.preventDefault();
 
@@ -941,6 +1147,7 @@ async function loginAdmin(event) {
   alert("Du bist jetzt als Admin angemeldet.");
 }
 
+/* PASSWORT-WIEDERHERSTELLUNG */
 function showRecoveryWindow() {
   recoveryActive = true;
 
@@ -1014,6 +1221,7 @@ async function updatePassword(event) {
     "Passwort geändert. Melde dich jetzt mit deinem neuen Passwort an.";
 }
 
+/* ABMELDEN */
 async function logoutAdmin() {
   await supabaseClient.auth.signOut();
 
@@ -1021,6 +1229,9 @@ async function logoutAdmin() {
   activeArtworkId = null;
 
   document.getElementById("adminEditor").classList.remove("visible");
+  document.getElementById("artistEditor").classList.remove("visible");
+  document.getElementById("artistEditArea").style.display = "none";
+
   document.getElementById("adminButton").style.display = "inline-block";
   document.getElementById("logoutButton").style.display = "none";
   document.getElementById("modal").classList.remove("open");
@@ -1028,6 +1239,7 @@ async function logoutAdmin() {
   alert("Du wurdest abgemeldet.");
 }
 
+/* KUNSTWERK SPEICHERN */
 async function saveArtwork() {
   if(!isAdmin || activeArtworkId === null) return;
 
@@ -1083,6 +1295,7 @@ async function saveArtwork() {
     "Änderungen erfolgreich gespeichert.";
 }
 
+/* AUTHENTIFIZIERUNG INITIALISIEREN */
 async function initializeAuth() {
   supabaseClient.auth.onAuthStateChange((event,session) => {
 
@@ -1109,7 +1322,9 @@ async function initializeAuth() {
   }
 }
 
+/* START */
 loadArtworks();
+loadArtistProfile();
 initializeAuth();
 </script>
 </body>
