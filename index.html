@@ -323,7 +323,7 @@ section {
   max-width:700px;
 }
 
-/* VERBESSERTER SCHLIESS-BUTTON */
+/* SCHLIESS-BUTTON */
 .close {
   position:fixed;
   top:calc(18px + env(safe-area-inset-top));
@@ -351,12 +351,84 @@ section {
   transform:rotate(90deg);
 }
 
-/* KUNSTWERK TEILEN */
+/* NEUE KUNSTWERK-NAVIGATION */
+.artwork-navigation {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  max-width:620px;
+  margin:30px auto 22px;
+  gap:15px;
+}
+.artwork-nav-button {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:0;
+  color:#eee9df;
+  background:transparent;
+  border:0;
+  font-family:Georgia,serif;
+  font-size:14px;
+  letter-spacing:.2px;
+  transition:opacity .2s;
+}
+.artwork-nav-button:hover {
+  border-color:transparent;
+  opacity:.75;
+}
+.artwork-nav-button:disabled {
+  opacity:.25;
+  cursor:default;
+}
+.artwork-nav-circle {
+  width:46px;
+  height:46px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border:1px solid rgba(238,233,223,.48);
+  border-radius:50%;
+  transition:background .25s,border-color .25s,transform .25s;
+}
+.artwork-nav-button:not(:disabled):hover .artwork-nav-circle {
+  background:rgba(255,255,255,.12);
+  border-color:rgba(238,233,223,.85);
+}
+.artwork-nav-button.previous:hover .artwork-nav-circle {
+  transform:translateX(-3px);
+}
+.artwork-nav-button.next:hover .artwork-nav-circle {
+  transform:translateX(3px);
+}
+.artwork-nav-circle svg {
+  width:19px;
+  height:19px;
+  stroke:currentColor;
+  stroke-width:1.5;
+  fill:none;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+.artwork-counter {
+  color:rgba(238,233,223,.58);
+  font-size:11px;
+  letter-spacing:1.5px;
+  white-space:nowrap;
+}
+
+/* TEILEN-BEREICH */
 .share-area {
   margin:25px auto 30px;
   display:flex;
   flex-direction:column;
   align-items:center;
+  gap:11px;
+}
+.share-actions {
+  display:flex;
+  justify-content:center;
+  flex-wrap:wrap;
   gap:10px;
 }
 .share-button {
@@ -364,25 +436,37 @@ section {
   align-items:center;
   justify-content:center;
   gap:9px;
-  padding:11px 20px;
+  min-height:44px;
+  padding:10px 19px;
   color:#eee9df;
   background:transparent;
-  border:1px solid rgba(238,233,223,.45);
-  border-radius:2px;
+  border:1px solid rgba(238,233,223,.48);
+  border-radius:30px;
   font-family:Georgia,serif;
-  font-size:14px;
+  font-size:13px;
   letter-spacing:.3px;
-  transition:background .2s,border-color .2s;
+  transition:background .25s,border-color .25s,transform .25s;
 }
 .share-button:hover {
-  background:rgba(255,255,255,.10);
-  border-color:rgba(238,233,223,.8);
+  background:rgba(255,255,255,.12);
+  border-color:rgba(238,233,223,.85);
+  transform:translateY(-2px);
+}
+.share-button svg {
+  width:16px;
+  height:16px;
+  stroke:currentColor;
+  stroke-width:1.6;
+  fill:none;
+  stroke-linecap:round;
+  stroke-linejoin:round;
 }
 .share-message {
   min-height:17px;
   color:rgba(238,233,223,.7);
   font-size:12px;
   line-height:1.5;
+  text-align:center;
 }
 
 /* ARTWORK ADMIN */
@@ -550,26 +634,24 @@ footer {
     gap:12px;
   }
   .artwork {padding:6px}
-
   .modal {
     padding:75px 15px 25px;
     align-items:flex-start;
   }
-  .modal-content {
-    margin:auto;
-  }
-  .modal img {
-    max-height:58vh;
-  }
+  .modal-content {margin:auto}
+  .modal img {max-height:58vh}
   .close {
     top:calc(12px + env(safe-area-inset-top));
     right:calc(12px + env(safe-area-inset-right));
     width:42px;
     height:42px;
   }
-  .share-area {
-    margin:22px auto 25px;
-  }
+  .share-area {margin:22px auto 25px}
+  .artwork-navigation {gap:7px}
+  .artwork-nav-button {gap:6px;font-size:12px}
+  .artwork-nav-circle {width:42px;height:42px}
+  .artwork-counter {font-size:9px;letter-spacing:1px}
+  .share-button {padding:10px 14px;font-size:12px}
 }
 @media(prefers-reduced-motion:reduce) {
   #intro {animation:none;display:none}
@@ -577,7 +659,9 @@ footer {
     opacity:1;
     animation:none;
   }
-  .close,.share-button {transition:none}
+  .close,.share-button,.artwork-nav-circle,.artwork-nav-button {
+    transition:none;
+  }
 }
 </style>
 </head>
@@ -734,15 +818,67 @@ footer {
     <h2 id="modalTitle"></h2>
     <p id="modalDescription" class="modal-description"></p>
 
-    <!-- Teilen-Funktion -->
-    <div class="share-area">
-      <button class="share-button"
-              id="shareArtworkButton"
+    <!-- NEUE PFEIL-NAVIGATION -->
+    <div class="artwork-navigation">
+      <button class="artwork-nav-button previous"
+              id="previousArtworkButton"
               type="button"
-              onclick="shareArtwork()">
-        <span aria-hidden="true">↗</span>
-        Kunstwerk teilen
+              onclick="navigateArtwork(-1)">
+        <span class="artwork-nav-circle">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M19 12H5"></path>
+            <path d="m12 19-7-7 7-7"></path>
+          </svg>
+        </span>
+        <span>Zurück</span>
       </button>
+
+      <div class="artwork-counter" id="artworkCounter">
+        1 / 50
+      </div>
+
+      <button class="artwork-nav-button next"
+              id="nextArtworkButton"
+              type="button"
+              onclick="navigateArtwork(1)">
+        <span>Weiter</span>
+        <span class="artwork-nav-circle">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M5 12h14"></path>
+            <path d="m12 5 7 7-7 7"></path>
+          </svg>
+        </span>
+      </button>
+    </div>
+
+    <!-- NEUER TEILEN-BEREICH -->
+    <div class="share-area">
+      <div class="share-actions">
+        <button class="share-button"
+                id="shareArtworkButton"
+                type="button"
+                onclick="shareArtwork()">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="18" cy="5" r="3"></circle>
+            <circle cx="6" cy="12" r="3"></circle>
+            <circle cx="18" cy="19" r="3"></circle>
+            <path d="m8.7 10.7 6.6-4.4"></path>
+            <path d="m8.7 13.3 6.6 4.4"></path>
+          </svg>
+          Kunstwerk teilen
+        </button>
+
+        <button class="share-button"
+                id="copyArtworkButton"
+                type="button"
+                onclick="copyArtworkLink()">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M10 13a5 5 0 0 0 7.1 0l3-3a5 5 0 0 0-7.1-7.1l-1.7 1.7"></path>
+            <path d="M14 11a5 5 0 0 0-7.1 0l-3 3a5 5 0 0 0 7.1 7.1l1.7-1.7"></path>
+          </svg>
+          Link kopieren
+        </button>
+      </div>
 
       <div id="shareMessage"
            class="share-message"
@@ -837,8 +973,6 @@ const SUPABASE_URL =
 const SUPABASE_KEY =
   "sb_publishable_qtIp3RDWWXOSKx2Mu-vxvA_tyabauCd";
 
-// Die tatsächliche Admin-Berechtigung wird ausschließlich
-// über die admins-Tabelle in Supabase geprüft.
 const SECOND_ADMIN_EMAIL = "ba.schuetze@web.de";
 
 const supabaseClient = window.supabase.createClient(
@@ -890,8 +1024,6 @@ async function loadArtworks() {
   }
 
   renderGallery();
-
-  // Prüfen, ob ein geteilter Direktlink geöffnet wurde.
   openArtworkFromUrl();
 }
 
@@ -905,10 +1037,7 @@ async function loadArtistProfile() {
       .single();
 
     if(error) throw error;
-
-    if(data) {
-      artistProfile = data;
-    }
+    if(data) artistProfile = data;
 
   } catch(error) {
     console.error("Fehler beim Laden des Künstlerprofils:",error);
@@ -1069,6 +1198,73 @@ function searchArtworks() {
     visible === 0 ? "block" : "none";
 }
 
+/* DIREKTLINK AKTUALISIEREN */
+function updateArtworkUrl(id) {
+  const url = new URL(window.location.href);
+
+  url.search = "";
+  url.hash = "";
+
+  if(id !== null && id !== undefined) {
+    url.searchParams.set("bild",String(id));
+  }
+
+  window.history.replaceState({}, "", url.toString());
+}
+
+/* PFEIL-NAVIGATION AKTUALISIEREN */
+function updateArtworkNavigation() {
+  const index = artworks.findIndex(
+    a => Number(a.id) === Number(activeArtworkId)
+  );
+
+  const previousButton =
+    document.getElementById("previousArtworkButton");
+
+  const nextButton =
+    document.getElementById("nextArtworkButton");
+
+  const counter =
+    document.getElementById("artworkCounter");
+
+  if(index === -1) {
+    previousButton.disabled = true;
+    nextButton.disabled = true;
+    counter.textContent = "";
+    return;
+  }
+
+  previousButton.disabled = index === 0;
+  nextButton.disabled = index === artworks.length - 1;
+
+  counter.textContent =
+    `${index + 1} / ${artworks.length}`;
+}
+
+/* ZWISCHEN KUNSTWERKEN WECHSELN */
+function navigateArtwork(direction) {
+  if(activeArtworkId === null) return;
+
+  const currentIndex = artworks.findIndex(
+    a => Number(a.id) === Number(activeArtworkId)
+  );
+
+  if(currentIndex === -1) return;
+
+  const nextIndex = currentIndex + direction;
+
+  if(nextIndex < 0 || nextIndex >= artworks.length) return;
+
+  const nextArtwork = artworks[nextIndex];
+
+  openModal(
+    nextArtwork.id,
+    `./bilder/bild${nextArtwork.id}.jpg`
+  );
+
+  updateArtworkUrl(nextArtwork.id);
+}
+
 /* BILD-MODAL */
 function openModal(id,source) {
   const artwork = getArtworkById(id);
@@ -1097,8 +1293,10 @@ function openModal(id,source) {
     document.getElementById("editTitle").value = artwork.title;
     document.getElementById("editDescription").value =
       artwork.description;
-    document.getElementById("saveMessage").textContent = "";
   }
+
+  updateArtworkNavigation();
+  updateArtworkUrl(artwork.id);
 
   document.getElementById("modal").classList.add("open");
 }
@@ -1151,31 +1349,35 @@ async function shareArtwork() {
   const message = document.getElementById("shareMessage");
   message.textContent = "";
 
-  // Auf unterstützten Geräten das normale Teilen-Menü öffnen.
   if(navigator.share) {
     try {
       await navigator.share(shareData);
-      message.textContent = "Teilen-Menü geöffnet.";
       return;
     } catch(error) {
-      // Wenn der Nutzer das Teilen-Menü schließt,
-      // wird keine Fehlermeldung angezeigt.
       if(error.name === "AbortError") return;
-
       console.error("Teilen nicht möglich:",error);
     }
   }
 
-  // Alternative: Link in die Zwischenablage kopieren.
+  await copyArtworkLink();
+}
+
+/* LINK DIREKT KOPIEREN */
+async function copyArtworkLink() {
+  if(activeArtworkId === null) return;
+
+  const shareUrl = getArtworkShareUrl(activeArtworkId);
+  const message = document.getElementById("shareMessage");
+
   try {
     await navigator.clipboard.writeText(shareUrl);
-    message.textContent = "Link wurde kopiert. Du kannst ihn jetzt verschicken.";
+    message.textContent =
+      "Link wurde kopiert. Du kannst ihn jetzt verschicken.";
     return;
   } catch(error) {
     console.error("Kopieren nicht möglich:",error);
   }
 
-  // Fallback für Browser ohne Clipboard-Unterstützung.
   const temporaryInput = document.createElement("textarea");
   temporaryInput.value = shareUrl;
   temporaryInput.style.position = "fixed";
@@ -1191,7 +1393,8 @@ async function shareArtwork() {
       : "Bitte kopiere diesen Link manuell: " + shareUrl;
 
   } catch(error) {
-    message.textContent = "Bitte kopiere diesen Link manuell: " + shareUrl;
+    message.textContent =
+      "Bitte kopiere diesen Link manuell: " + shareUrl;
   }
 
   temporaryInput.remove();
@@ -1205,6 +1408,7 @@ function closeModal(event) {
   ) {
     document.getElementById("modal").classList.remove("open");
     activeArtworkId = null;
+    updateArtworkUrl(null);
   }
 }
 
@@ -1442,6 +1646,8 @@ async function logoutAdmin() {
   document.getElementById("logoutButton").style.display = "none";
   document.getElementById("modal").classList.remove("open");
 
+  updateArtworkUrl(null);
+
   alert("Du wurdest abgemeldet.");
 }
 
@@ -1498,6 +1704,7 @@ async function saveArtwork() {
   document.getElementById("modalImage").alt = data.title;
 
   renderGallery();
+  updateArtworkNavigation();
 
   message.textContent =
     "Änderungen erfolgreich gespeichert.";
