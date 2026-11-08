@@ -307,6 +307,11 @@ section {
   color:white;
   margin:auto;
 }
+.modal img {
+  max-width:100%;
+  max-height:65vh;
+  object-fit:contain;
+}
 .modal h2 {
   font-weight:normal;
   margin:20px 0 10px;
@@ -346,23 +351,24 @@ section {
   transform:rotate(90deg);
 }
 
-/* BILD, PFEILE UND AKTIONEN */
+/* BILD UND PFEIL-NAVIGATION */
 .artwork-stage {
   display:grid;
   grid-template-columns:58px minmax(0,1fr) 58px;
-  align-items:center;
+  align-items:stretch;
   gap:12px;
   width:100%;
   max-width:950px;
   margin:0 auto;
 }
+
 .artwork-image-wrap {
   min-width:0;
   display:flex;
-  flex-direction:column;
   align-items:center;
   justify-content:center;
 }
+
 .artwork-image-wrap img {
   display:block;
   max-width:100%;
@@ -371,13 +377,8 @@ section {
   height:auto;
   object-fit:contain;
 }
-.artwork-counter {
-  margin-top:14px;
-  color:rgba(238,233,223,.62);
-  font-size:11px;
-  letter-spacing:1.7px;
-  text-align:center;
-}
+
+/* BILDPFEILE */
 .artwork-arrow {
   width:48px;
   height:48px;
@@ -391,17 +392,43 @@ section {
   border-radius:50%;
   transition:background .2s,border-color .2s,transform .2s;
 }
+
 .artwork-arrow:hover {
   background:rgba(255,255,255,.16);
   border-color:rgba(238,233,223,.9);
 }
-.artwork-arrow.previous:hover {transform:translateX(-3px)}
-.artwork-arrow.next:hover {transform:translateX(3px)}
+
+.artwork-arrow.previous {
+  align-self:center;
+}
+
+.artwork-arrow.previous:hover {
+  transform:translateX(-3px);
+}
+
+.artwork-side-actions {
+  position:relative;
+  align-self:stretch;
+  min-height:100%;
+}
+
+/* RECHTER PFEIL EXAKT AUF BILDMITTE */
+.artwork-arrow.next {
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+}
+
+.artwork-arrow.next:hover {
+  transform:translate(-50%,-50%) translateX(3px);
+}
+
 .artwork-arrow:disabled {
   opacity:.22;
   cursor:default;
-  transform:none;
 }
+
 .artwork-arrow svg {
   width:21px;
   height:21px;
@@ -412,16 +439,10 @@ section {
   stroke-linejoin:round;
 }
 
-/* TEILEN UND KOPIEREN */
-.artwork-side-actions {
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  gap:12px;
-  align-self:center;
-}
+/* TEILEN UND LINK KOPIEREN */
 .icon-action {
+  position:absolute;
+  left:50%;
   width:42px;
   height:42px;
   padding:0;
@@ -432,13 +453,23 @@ section {
   background:rgba(255,255,255,.06);
   border:1px solid rgba(238,233,223,.45);
   border-radius:50%;
-  transition:background .2s,border-color .2s,transform .2s;
+  transform:translateX(-50%);
+  transition:background .2s,border-color .2s;
 }
+
+#shareArtworkButton {
+  top:calc(50% + 43px);
+}
+
+#copyArtworkButton {
+  top:calc(50% + 93px);
+}
+
 .icon-action:hover {
   background:rgba(255,255,255,.16);
   border-color:rgba(238,233,223,.9);
-  transform:translateY(-2px);
 }
+
 .icon-action svg {
   width:18px;
   height:18px;
@@ -448,6 +479,17 @@ section {
   stroke-linecap:round;
   stroke-linejoin:round;
 }
+
+/* BILDZÄHLER */
+.artwork-counter {
+  margin-top:14px;
+  color:rgba(238,233,223,.62);
+  font-size:11px;
+  letter-spacing:1.7px;
+  text-align:center;
+}
+
+/* RÜCKMELDUNG BEIM TEILEN */
 .share-message {
   min-height:18px;
   margin:12px auto 0;
@@ -606,6 +648,7 @@ footer {
   font-size:13px;
 }
 
+/* MOBILE */
 @media(max-width:600px) {
   header {
     padding:14px 4%;
@@ -623,7 +666,7 @@ footer {
   }
   .artwork {padding:6px}
   .modal {
-    padding:75px 10px 25px;
+    padding:75px 15px 25px;
     align-items:flex-start;
   }
   .modal-content {margin:auto}
@@ -631,7 +674,9 @@ footer {
     grid-template-columns:42px minmax(0,1fr) 42px;
     gap:5px;
   }
-  .artwork-image-wrap img {max-height:58vh}
+  .artwork-image-wrap img {
+    max-height:58vh;
+  }
   .artwork-arrow {
     width:38px;
     height:38px;
@@ -648,7 +693,12 @@ footer {
     width:16px;
     height:16px;
   }
-  .artwork-side-actions {gap:9px}
+  #shareArtworkButton {
+    top:calc(50% + 35px);
+  }
+  #copyArtworkButton {
+    top:calc(50% + 79px);
+  }
   .close {
     top:calc(12px + env(safe-area-inset-top));
     right:calc(12px + env(safe-area-inset-right));
@@ -656,6 +706,7 @@ footer {
     height:42px;
   }
 }
+
 @media(prefers-reduced-motion:reduce) {
   #intro {animation:none;display:none}
   .intro-title,.intro-sub,.intro-author,.intro-small {
@@ -807,7 +858,7 @@ footer {
   Wort trifft Objekt · Barbara Schütze
 </footer>
 
-<!-- BILD-MODAL -->
+<!-- BILD-VOLLANZEIGE -->
 <div class="modal" id="modal" onclick="closeModal(event)">
 
   <button class="close"
@@ -819,9 +870,9 @@ footer {
 
   <div class="modal-content" onclick="event.stopPropagation()">
 
+    <!-- BILD UND PFEILE -->
     <div class="artwork-stage">
 
-      <!-- LINKER PFEIL -->
       <button class="artwork-arrow previous"
               id="previousArtworkButton"
               type="button"
@@ -834,16 +885,10 @@ footer {
         </svg>
       </button>
 
-      <!-- BILD UND ZÄHLER -->
       <div class="artwork-image-wrap">
         <img id="modalImage" src="" alt="">
-
-        <div class="artwork-counter" id="artworkCounter">
-          1 / 50
-        </div>
       </div>
 
-      <!-- RECHTER PFEIL UND SYMBOL-BUTTONS -->
       <div class="artwork-side-actions">
 
         <button class="artwork-arrow next"
@@ -858,7 +903,6 @@ footer {
           </svg>
         </button>
 
-        <!-- TEILEN -->
         <button class="icon-action"
                 id="shareArtworkButton"
                 type="button"
@@ -874,7 +918,6 @@ footer {
           </svg>
         </button>
 
-        <!-- LINK KOPIEREN -->
         <button class="icon-action"
                 id="copyArtworkButton"
                 type="button"
@@ -890,6 +933,12 @@ footer {
       </div>
     </div>
 
+    <!-- BILDZÄHLER -->
+    <div class="artwork-counter" id="artworkCounter">
+      1 / 50
+    </div>
+
+    <!-- TEILEN-RÜCKMELDUNG -->
     <div id="shareMessage"
          class="share-message"
          aria-live="polite"></div>
@@ -1228,7 +1277,7 @@ function updateArtworkUrl(id) {
   window.history.replaceState({}, "", url.toString());
 }
 
-/* BILDZÄHLER UND PFEILE AKTUALISIEREN */
+/* PFEIL-NAVIGATION AKTUALISIEREN */
 function updateArtworkNavigation() {
   const index = artworks.findIndex(
     a => Number(a.id) === Number(activeArtworkId)
@@ -1301,8 +1350,6 @@ function openModal(id,source) {
     artwork.description || "";
 
   document.getElementById("shareMessage").textContent = "";
-
-  document.getElementById("saveMessage").textContent = "";
 
   const editor = document.getElementById("adminEditor");
   editor.classList.toggle("visible",isAdmin);
@@ -1418,7 +1465,6 @@ async function copyArtworkLink() {
   temporaryInput.remove();
 }
 
-/* MODAL SCHLIESSEN */
 function closeModal(event) {
   if(
     !event ||
