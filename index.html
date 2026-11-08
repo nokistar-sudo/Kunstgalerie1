@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -462,7 +463,6 @@ footer {
 
 <body>
 
-<!-- INTRO -->
 <div id="intro">
   <div class="intro-inner">
     <div class="intro-small">
@@ -479,7 +479,6 @@ footer {
   </div>
 </div>
 
-<!-- HEADER -->
 <header>
   <a class="logo" href="#"
      onclick="showPage('gallery');return false">
@@ -491,8 +490,9 @@ footer {
       ☾ Dunkel
     </button>
 
+    <!-- FEHLER KORRIGIERT: openLogin() -->
     <button id="adminButton"
-            onclick="openLogin"
+            onclick="openLogin()"
             style="display:inline-block">
       ⚙ Admin
     </button>
@@ -505,7 +505,6 @@ footer {
   </div>
 </header>
 
-<!-- TITEL -->
 <div class="hero">
   <h1>Wort trifft Objekt</h1>
   <div class="subtitle">
@@ -516,7 +515,6 @@ footer {
   </div>
 </div>
 
-<!-- NAVIGATION -->
 <nav>
   <button onclick="showPage('gallery')">Galerie</button>
   <button onclick="showPage('about')">Über die Künstlerin</button>
@@ -525,7 +523,6 @@ footer {
   </a>
 </nav>
 
-<!-- GALERIE -->
 <section id="gallerySection">
   <h2 class="section-title">Die Ausstellung</h2>
   <p class="section-description">
@@ -551,7 +548,6 @@ footer {
   </div>
 </section>
 
-<!-- KÜNSTLERSEITE -->
 <section id="aboutSection" class="panel">
   <h2 class="section-title">Über die Künstlerin</h2>
   <p><strong>Barbara Schütze</strong></p>
@@ -573,7 +569,6 @@ footer {
   Wort trifft Objekt · Barbara Schütze
 </footer>
 
-<!-- BILD-GROSSANSICHT -->
 <div class="modal" id="modal" onclick="closeModal(event)">
   <button class="close" onclick="closeModal(event)">×</button>
 
@@ -597,7 +592,6 @@ footer {
   </div>
 </div>
 
-<!-- ADMIN LOGIN -->
 <div class="login-overlay" id="loginOverlay">
   <div class="login-box">
     <button onclick="closeLogin()"
@@ -625,7 +619,6 @@ footer {
   </div>
 </div>
 
-<!-- NEU: PASSWORT ZURÜCKSETZEN -->
 <div class="recovery-overlay" id="recoveryOverlay">
   <div class="recovery-box">
     <h2>Neues Passwort festlegen</h2>
@@ -663,15 +656,9 @@ footer {
   </div>
 </div>
 
-<!-- SUPABASE -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
-
-// ================================================
-// SUPABASE
-// ================================================
-
 const SUPABASE_URL =
   "https://wurunvcuikmjaehkdcvb.supabase.co";
 
@@ -690,10 +677,6 @@ const supabaseClient = window.supabase.createClient(
   }
 );
 
-// ================================================
-// GRUNDDATEN
-// ================================================
-
 let artworks = [];
 let isAdmin = false;
 let activeArtworkId = null;
@@ -706,10 +689,6 @@ function defaultArtworks() {
     description:"Beschreibung folgt."
   }));
 }
-
-// ================================================
-// KUNSTWERKE LADEN
-// ================================================
 
 async function loadArtworks() {
   try {
@@ -731,10 +710,6 @@ async function loadArtworks() {
 
   renderGallery();
 }
-
-// ================================================
-// GALERIE ERSTELLEN
-// ================================================
 
 function renderGallery() {
   const gallery = document.getElementById("gallery");
@@ -769,10 +744,6 @@ function renderGallery() {
   searchArtworks();
 }
 
-// ================================================
-// SUCHFUNKTION
-// ================================================
-
 function searchArtworks() {
   const query = document.getElementById("searchInput")
     .value.trim().toLowerCase();
@@ -799,10 +770,6 @@ function searchArtworks() {
   document.getElementById("noResults").style.display =
     visible === 0 ? "block" : "none";
 }
-
-// ================================================
-// BILD-GROSSANSICHT
-// ================================================
 
 function openModal(id,source) {
   activeArtworkId = id;
@@ -839,10 +806,6 @@ function closeModal(event) {
   }
 }
 
-// ================================================
-// SEITENNAVIGATION
-// ================================================
-
 function showPage(page) {
   const gallerySection =
     document.getElementById("gallerySection");
@@ -860,10 +823,6 @@ function showPage(page) {
 
   window.scrollTo({top:0,behavior:"smooth"});
 }
-
-// ================================================
-// HELL- UND DUNKELMODUS
-// ================================================
 
 function toggleTheme() {
   document.body.classList.toggle("dark");
@@ -888,10 +847,6 @@ try {
   }
 } catch(e) {}
 
-// ================================================
-// ADMIN LOGIN
-// ================================================
-
 function openLogin() {
   if(isAdmin) return;
 
@@ -904,10 +859,6 @@ function openLogin() {
 function closeLogin() {
   document.getElementById("loginOverlay").classList.remove("open");
 }
-
-// ================================================
-// ADMIN BERECHTIGUNG PRÜFEN
-// ================================================
 
 async function checkAdmin(user) {
   isAdmin = false;
@@ -950,10 +901,6 @@ async function checkAdmin(user) {
   }
 }
 
-// ================================================
-// ANMELDEN
-// ================================================
-
 async function loginAdmin(event) {
   event.preventDefault();
 
@@ -994,24 +941,15 @@ async function loginAdmin(event) {
   alert("Du bist jetzt als Admin angemeldet.");
 }
 
-// ================================================
-// NEU: RECOVERY-LINK ERKENNEN
-// ================================================
-
 function showRecoveryWindow() {
   recoveryActive = true;
 
   document.getElementById("loginOverlay").classList.remove("open");
-
   document.getElementById("recoveryOverlay").classList.add("open");
 
   document.getElementById("recoveryMessage").textContent =
     "Bitte lege dein neues Passwort fest.";
 }
-
-// ================================================
-// NEU: NEUES PASSWORT SPEICHERN
-// ================================================
 
 async function updatePassword(event) {
   event.preventDefault();
@@ -1065,22 +1003,16 @@ async function updatePassword(event) {
 
   recoveryActive = false;
 
-  // Recovery-Fenster nach erfolgreichem Speichern schließen.
   document.getElementById("recoveryOverlay").classList.remove("open");
 
   button.disabled = false;
   button.textContent = "Neues Passwort speichern";
 
-  // Admin-Anmeldung öffnen.
   document.getElementById("loginOverlay").classList.add("open");
 
   document.getElementById("loginMessage").textContent =
     "Passwort geändert. Melde dich jetzt mit deinem neuen Passwort an.";
 }
-
-// ================================================
-// ABMELDEN
-// ================================================
 
 async function logoutAdmin() {
   await supabaseClient.auth.signOut();
@@ -1095,10 +1027,6 @@ async function logoutAdmin() {
 
   alert("Du wurdest abgemeldet.");
 }
-
-// ================================================
-// TITEL UND BESCHREIBUNG SPEICHERN
-// ================================================
 
 async function saveArtwork() {
   if(!isAdmin || activeArtworkId === null) return;
@@ -1155,23 +1083,14 @@ async function saveArtwork() {
     "Änderungen erfolgreich gespeichert.";
 }
 
-// ================================================
-// AUTHENTIFIZIERUNG UND RECOVERY
-// ================================================
-
 async function initializeAuth() {
-
-  // Auth-Listener registrieren.
   supabaseClient.auth.onAuthStateChange((event,session) => {
 
-    // PASSWORD_RECOVERY wird von Supabase ausgelöst,
-    // wenn ein gültiger Wiederherstellungslink geöffnet wird.
     if(event === "PASSWORD_RECOVERY") {
       showRecoveryWindow();
       return;
     }
 
-    // Normale Auth-Ereignisse verzögert verarbeiten.
     setTimeout(async () => {
       if(recoveryActive) return;
       await checkAdmin(session?.user || null);
@@ -1185,19 +1104,13 @@ async function initializeAuth() {
     console.error("Session-Fehler:",error);
   }
 
-  // Normale bestehende Sitzung prüfen.
   if(!recoveryActive) {
     await checkAdmin(data.session?.user || null);
   }
 }
 
-// ================================================
-// START
-// ================================================
-
 loadArtworks();
 initializeAuth();
-
 </script>
 </body>
 </html>
