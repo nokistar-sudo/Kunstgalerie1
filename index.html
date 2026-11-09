@@ -36,7 +36,7 @@ header{
 .hero{text-align:center;padding:65px 20px 45px}
 .hero h1{font-size:clamp(38px,7vw,65px);font-weight:normal;margin:0}
 .subtitle{color:var(--muted);letter-spacing:2px;margin-top:18px;font-size:13px}
-.artist-name{margin-top:25px;color:var(--muted)}
+.artist-name{margin-top:25px;color:var(--muted);white-space:pre-line}
 nav{
   display:flex;justify-content:center;gap:12px;flex-wrap:wrap;
   padding:0 15px 40px;
@@ -132,7 +132,11 @@ footer{
 #intro{
   position:fixed;inset:0;z-index:50;background:var(--bg);
   display:flex;align-items:center;justify-content:center;text-align:center;
-  padding:25px;animation:introFadeOut 1.2s ease 5s forwards;
+  padding:25px;opacity:0;visibility:hidden;pointer-events:none;
+}
+#intro.play{
+  opacity:1;visibility:visible;pointer-events:auto;
+  animation:introFadeOut 1.2s ease 5s forwards;
 }
 .intro-inner{animation:introAppear 1.5s ease both}
 .intro-small{
@@ -145,7 +149,7 @@ footer{
 }
 .intro-line{width:0;height:1px;background:var(--accent);margin:25px auto;animation:lineGrow 1.4s ease 1.8s forwards}
 .intro-sub{color:var(--muted);letter-spacing:2px;font-size:13px;opacity:0;animation:reveal 1.2s ease 2.3s forwards}
-.intro-author{color:var(--muted);margin-top:40px;font-size:14px;opacity:0;animation:reveal 1.2s ease 3s forwards}
+.intro-author{color:var(--muted);margin-top:40px;font-size:14px;opacity:0;white-space:pre-line;animation:reveal 1.2s ease 3s forwards}
 @keyframes reveal{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 @keyframes lineGrow{to{width:90px}}
 @keyframes introAppear{from{opacity:0}to{opacity:1}}
@@ -168,7 +172,7 @@ footer{
   .close{top:calc(12px + env(safe-area-inset-top));right:calc(12px + env(safe-area-inset-right));width:42px;height:42px}
 }
 @media(prefers-reduced-motion:reduce){
-  #intro{animation:none;display:none}
+  #intro{animation:none!important;display:none}
   *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}
 }
 </style>
@@ -178,11 +182,12 @@ footer{
 
 <div id="intro">
   <div class="intro-inner">
-    <div class="intro-small">BARBARA SCHÜTZE · DIGITALE AUSSTELLUNG</div>
-    <h1 class="intro-title">Wort trifft Objekt</h1>
+    <div class="intro-small" id="introSmall">BARBARA SCHÜTZE · DIGITALE AUSSTELLUNG</div>
+    <h1 class="intro-title" id="introTitle">Wort trifft Objekt</h1>
     <div class="intro-line"></div>
-    <div class="intro-sub">FUNDSTÜCKE · FIGUREN · GEDANKEN</div>
-    <div class="intro-author">Eine Ausstellung von<br>Barbara Schütze</div>
+    <div class="intro-sub" id="introSubtitle">FUNDSTÜCKE · FIGUREN · GEDANKEN</div>
+    <div class="intro-author" id="introAuthor">Eine Ausstellung von
+Barbara Schütze</div>
   </div>
 </div>
 
@@ -197,7 +202,8 @@ footer{
 <div class="hero">
   <h1 id="heroTitle">Wort trifft Objekt</h1>
   <div class="subtitle" id="heroSubtitle">FUNDSTÜCKE · FIGUREN · GEDANKEN</div>
-  <div class="artist-name" id="heroText">Eine digitale Ausstellung von<br>Barbara Schütze</div>
+  <div class="artist-name" id="heroText">Eine digitale Ausstellung von
+Barbara Schütze</div>
 </div>
 
 <nav>
@@ -261,6 +267,13 @@ const SUPABASE_URL="https://wurunvcuikmjaehkdcvb.supabase.co";
 const SUPABASE_KEY="sb_publishable_qtIp3RDWWXOSKx2Mu-vxvA_tyabauCd";
 const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
+const INTRO_DEFAULTS={
+  intro_small:"BARBARA SCHÜTZE · DIGITALE AUSSTELLUNG",
+  intro_title:"Wort trifft Objekt",
+  intro_subtitle:"FUNDSTÜCKE · FIGUREN · GEDANKEN",
+  intro_author:"Eine Ausstellung von\nBarbara Schütze"
+};
+
 let artworks=[];
 let activeArtworkId=null;
 let artistProfile={
@@ -268,6 +281,7 @@ let artistProfile={
   description:"Ein Einblick in die Künstlerin, ihre Gedanken und ihre kreative Arbeit. Jedes Objekt erzählt seine eigene Geschichte und eröffnet einen neuen Blick auf die kleinen und großen Dinge des Lebens."
 };
 let siteSettings=null;
+let introStarted=false;
 
 function defaultArtworks(){
   return Array.from({length:50},(_,i)=>({
@@ -338,20 +352,47 @@ function renderArtistProfile(){
   document.getElementById("artistDescription").textContent=artistProfile.description||"";
 }
 
+function startIntro(){
+  if(introStarted)return;
+  introStarted=true;
+  document.getElementById("intro").classList.add("play");
+}
+
+function applyIntroSettings(data){
+  const values={
+    intro_small:data?.intro_small||INTRO_DEFAULTS.intro_small,
+    intro_title:data?.intro_title||INTRO_DEFAULTS.intro_title,
+    intro_subtitle:data?.intro_subtitle||INTRO_DEFAULTS.intro_subtitle,
+    intro_author:data?.intro_author||INTRO_DEFAULTS.intro_author
+  };
+  document.getElementById("introSmall").textContent=values.intro_small;
+  document.getElementById("introTitle").textContent=values.intro_title;
+  document.getElementById("introSubtitle").textContent=values.intro_subtitle;
+  document.getElementById("introAuthor").textContent=values.intro_author;
+}
+
 async function loadSiteSettings(){
   try{
     const {data,error}=await supabaseClient
       .from("site_settings")
-      .select("id,welcome_title,welcome_subtitle,welcome_text")
+      .select("id,welcome_title,welcome_subtitle,welcome_text,intro_small,intro_title,intro_subtitle,intro_author")
       .eq("id",1).single();
     if(error)throw error;
     if(data){
       siteSettings=data;
-      document.getElementById("heroTitle").textContent=data.welcome_title;
-      document.getElementById("heroSubtitle").textContent=data.welcome_subtitle;
-      document.getElementById("heroText").textContent=data.welcome_text;
+      document.getElementById("heroTitle").textContent=data.welcome_title||"Wort trifft Objekt";
+      document.getElementById("heroSubtitle").textContent=data.welcome_subtitle||"FUNDSTÜCKE · FIGUREN · GEDANKEN";
+      document.getElementById("heroText").textContent=data.welcome_text||"Eine digitale Ausstellung von\nBarbara Schütze";
+      applyIntroSettings(data);
+    }else{
+      applyIntroSettings(null);
     }
-  }catch(e){console.warn("Startseiteneinstellungen:",e)}
+  }catch(e){
+    console.warn("Startseiteneinstellungen:",e);
+    applyIntroSettings(null);
+  }finally{
+    startIntro();
+  }
 }
 
 function renderGallery(){
