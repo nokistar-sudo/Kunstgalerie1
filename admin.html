@@ -74,6 +74,7 @@ h1{font-weight:normal;font-size:clamp(30px,4vw,43px);margin:10px 0}
 .stat-note{color:var(--muted);font-size:11px}
 .box{margin:20px 0}
 .box h2{font-weight:normal;font-size:21px;margin:0 0 20px}
+.box h3{font-weight:normal;font-size:18px;margin:0 0 8px}
 .chart{height:190px;display:flex;align-items:flex-end;gap:9px;padding:10px 5px 0;border-bottom:1px solid var(--border)}
 .bar-wrap{flex:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:8px;min-width:0}
 .bar{width:min(28px,75%);background:var(--accent);border-radius:4px 4px 0 0;min-height:3px;transition:height .5s}
@@ -92,6 +93,7 @@ h1{font-weight:normal;font-size:clamp(30px,4vw,43px);margin:10px 0}
   background:var(--bg);color:var(--text);border-radius:4px;
 }
 .field textarea{min-height:145px;resize:vertical;line-height:1.6}
+.field textarea.short-textarea{min-height:85px}
 .actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:18px}
 .status{font-size:13px;color:var(--muted);min-height:20px;margin-top:12px}
 .toolbar{display:flex;gap:10px;flex-wrap:wrap;margin:20px 0}
@@ -164,7 +166,6 @@ th{color:var(--muted);font-weight:normal}
   .art-row{grid-template-columns:48px minmax(0,1fr)}
   .art-row img{width:48px;height:58px}
   .art-actions{grid-column:2}
-  .art-actions button{padding:7px}
 }
 @media(prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
@@ -328,12 +329,36 @@ th{color:var(--muted);font-weight:normal}
       <section class="page" id="page-homepage">
         <div class="eyebrow">GESTALTUNG</div>
         <h1>Startseite bearbeiten</h1>
-        <p class="lead">Passe die Begrüßung und die Unterzeile der öffentlichen Website an.</p>
+        <p class="lead">Passe die Begrüßung auf der öffentlichen Website und die Texte der Intro-Animation an.</p>
+
         <div class="box">
+          <h2>Texte auf der Startseite</h2>
           <div class="field"><label for="welcomeTitle">Hauptüberschrift</label><input id="welcomeTitle" maxlength="200"></div>
           <div class="field"><label for="welcomeSubtitle">Unterzeile</label><input id="welcomeSubtitle" maxlength="250"></div>
           <div class="field"><label for="welcomeText">Begrüßungstext</label><textarea id="welcomeText"></textarea></div>
-          <div class="actions"><button class="primary" onclick="saveHomepage()">Startseite speichern</button></div>
+        </div>
+
+        <div class="box">
+          <h2>Intro-Animation bearbeiten</h2>
+          <p class="muted">Diese vier Texte erscheinen direkt beim Öffnen der Website während der animierten Einblendung.</p>
+          <div class="field">
+            <label for="introSmall">Kleiner Text oben</label>
+            <input id="introSmall" maxlength="200" placeholder="BARBARA SCHÜTZE · DIGITALE AUSSTELLUNG">
+          </div>
+          <div class="field">
+            <label for="introTitle">Große Überschrift</label>
+            <input id="introTitle" maxlength="200" placeholder="Wort trifft Objekt">
+          </div>
+          <div class="field">
+            <label for="introSubtitle">Unterzeile</label>
+            <input id="introSubtitle" maxlength="250" placeholder="FUNDSTÜCKE · FIGUREN · GEDANKEN">
+          </div>
+          <div class="field">
+            <label for="introAuthor">Text unter der Linie</label>
+            <textarea id="introAuthor" class="short-textarea" placeholder="Eine Ausstellung von&#10;Barbara Schütze"></textarea>
+          </div>
+          <div class="notice">Zeilenumbrüche im letzten Feld werden auch in der Animation übernommen. Du kannst dort also beispielsweise den Künstlernamen in eine eigene Zeile setzen.</div>
+          <div class="actions"><button class="primary" onclick="saveHomepage()">Alle Startseitentexte speichern</button></div>
           <div class="status" id="homepageStatus"></div>
         </div>
       </section>
@@ -389,349 +414,586 @@ th{color:var(--muted);font-weight:normal}
 <script>
 const SUPABASE_URL="https://wurunvcuikmjaehkdcvb.supabase.co";
 const SUPABASE_KEY="sb_publishable_qtIp3RDWWXOSKx2Mu-vxvA_tyabauCd";
-const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
 let currentUser=null;
 let adminArtworks=[];
-let artistData=null;
-let homeData=null;
-let allEvents=[];
+let currentPage="dashboard";
 
-const $=id=>document.getElementById(id);
-
-function setStatus(id,message){$(id).textContent=message}
+function setStatus(id,message,isError=false){
+  const el=document.getElementById(id);
+  if(!el)return;
+  el.textContent=message;
+  el.style.color=isError?"#b45b4e":"var(--muted)";
+}
 
 function toggleTheme(){
   document.body.classList.toggle("dark");
   const dark=document.body.classList.contains("dark");
-  $("themeButton").textContent=dark?"☀ Hell":"☾ Dunkel";
+  document.getElementById("themeButton").textContent=dark?"☀ Hell":"☾ Dunkel";
   try{localStorage.setItem("kunstgalerie-theme",dark?"dark":"light")}catch(e){}
 }
+
 try{
   if(localStorage.getItem("kunstgalerie-theme")==="dark"){
     document.body.classList.add("dark");
-    $("themeButton").textContent="☀ Hell";
+    const button=document.getElementById("themeButton");
+    if(button)button.textContent="☀ Hell";
   }
 }catch(e){}
 
 function showSection(name,button){
-  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
-  $("page-"+name).classList.add("active");
-  document.querySelectorAll(".nav-button").forEach(b=>b.classList.remove("active"));
+  currentPage=name;
+  document.querySelectorAll(".page").forEach(page=>page.classList.remove("active"));
+  const target=document.getElementById("page-"+name);
+  if(target)target.classList.add("active");
+
+  document.querySelectorAll(".nav-button").forEach(nav=>nav.classList.remove("active"));
   if(button)button.classList.add("active");
+  else{
+    const nav=document.querySelector(`.nav-button[data-page="${name}"]`);
+    if(nav)nav.classList.add("active");
+  }
+
   if(name==="dashboard")loadDashboard();
   if(name==="artworks")loadAdminArtworks();
   if(name==="artist")loadArtist();
   if(name==="homepage")loadHomepage();
 }
 
-async function verifyAdmin(user){
+async function checkAdmin(user){
   if(!user)return false;
-  const {data,error}=await db.from("admins").select("user_id").eq("user_id",user.id).maybeSingle();
-  return !error&&!!data;
+  try{
+    const {data,error}=await supabaseClient
+      .from("admins")
+      .select("user_id")
+      .eq("user_id",user.id)
+      .maybeSingle();
+
+    if(error)throw error;
+    return !!data;
+  }catch(error){
+    console.error("Adminprüfung fehlgeschlagen:",error);
+    return false;
+  }
 }
 
-async function showApp(user){
-  const allowed=await verifyAdmin(user);
-  if(!allowed){
-    await db.auth.signOut();
-    $("loginScreen").classList.remove("hidden");
-    $("adminApp").classList.add("hidden");
-    setStatus("loginStatus","Dieses Konto besitzt keine Admin-Berechtigung.");
-    return;
-  }
+async function showAdminApp(user){
   currentUser=user;
-  $("loginScreen").classList.add("hidden");
-  $("recoveryScreen").classList.add("hidden");
-  $("adminApp").classList.remove("hidden");
-  await Promise.all([loadDashboard(),loadAdminArtworks()]);
+  document.getElementById("loginScreen").classList.add("hidden");
+  document.getElementById("recoveryScreen").classList.add("hidden");
+  document.getElementById("adminApp").classList.remove("hidden");
+  showSection("dashboard");
 }
-
-$("loginForm").addEventListener("submit",async event=>{
-  event.preventDefault();
-  setStatus("loginStatus","Anmeldung läuft ...");
-  const {data,error}=await db.auth.signInWithPassword({
-    email:$("email").value.trim(),
-    password:$("password").value
-  });
-  if(error){
-    setStatus("loginStatus","Anmeldung fehlgeschlagen: "+error.message);
-    return;
-  }
-  await showApp(data.user);
-});
-
-$("recoveryForm").addEventListener("submit",async event=>{
-  event.preventDefault();
-  const password=$("newPassword").value;
-  const confirm=$("confirmPassword").value;
-  if(password.length<8){setStatus("recoveryStatus","Das Passwort muss mindestens 8 Zeichen lang sein.");return}
-  if(password!==confirm){setStatus("recoveryStatus","Die Passwörter stimmen nicht überein.");return}
-  setStatus("recoveryStatus","Passwort wird gespeichert ...");
-  const {error}=await db.auth.updateUser({password});
-  if(error){setStatus("recoveryStatus","Fehler: "+error.message);return}
-  $("recoveryScreen").classList.add("hidden");
-  $("loginScreen").classList.remove("hidden");
-  setStatus("loginStatus","Passwort geändert. Bitte melde dich erneut an.");
-});
-
-db.auth.onAuthStateChange((event,session)=>{
-  if(event==="PASSWORD_RECOVERY"){
-    $("loginScreen").classList.add("hidden");
-    $("recoveryScreen").classList.remove("hidden");
-    return;
-  }
-  if(event==="SIGNED_OUT"){
-    currentUser=null;
-    $("adminApp").classList.add("hidden");
-    $("loginScreen").classList.remove("hidden");
-  }
-});
-
-async function initialize(){
-  const {data,error}=await db.auth.getSession();
-  if(error)console.error(error);
-  if(data.session?.user)await showApp(data.session.user);
-}
-initialize();
 
 async function logout(){
-  await db.auth.signOut();
+  await supabaseClient.auth.signOut();
   currentUser=null;
-  $("adminApp").classList.add("hidden");
-  $("loginScreen").classList.remove("hidden");
+  document.getElementById("adminApp").classList.add("hidden");
+  document.getElementById("loginScreen").classList.remove("hidden");
+  document.getElementById("password").value="";
   setStatus("loginStatus","Du wurdest abgemeldet.");
 }
 
-/* STATISTIK */
-function startOfDay(date){
-  const d=new Date(date);
-  d.setHours(0,0,0,0);
-  return d;
+document.getElementById("loginForm").addEventListener("submit",async event=>{
+  event.preventDefault();
+  const email=document.getElementById("email").value.trim();
+  const password=document.getElementById("password").value;
+  const button=event.submitter;
+  button.disabled=true;
+  button.textContent="Anmeldung läuft ...";
+  setStatus("loginStatus","Anmeldung wird geprüft ...");
+
+  try{
+    const {data,error}=await supabaseClient.auth.signInWithPassword({email,password});
+    if(error)throw error;
+
+    const allowed=await checkAdmin(data.user);
+    if(!allowed){
+      await supabaseClient.auth.signOut();
+      throw new Error("Dieses Konto besitzt keine Admin-Berechtigung.");
+    }
+
+    await showAdminApp(data.user);
+  }catch(error){
+    setStatus("loginStatus",error.message||"Anmeldung fehlgeschlagen.",true);
+  }finally{
+    button.disabled=false;
+    button.textContent="Anmelden";
+  }
+});
+
+document.getElementById("recoveryForm").addEventListener("submit",async event=>{
+  event.preventDefault();
+  const password=document.getElementById("newPassword").value;
+  const confirm=document.getElementById("confirmPassword").value;
+
+  if(password.length<8){
+    setStatus("recoveryStatus","Das Passwort muss mindestens 8 Zeichen enthalten.",true);
+    return;
+  }
+  if(password!==confirm){
+    setStatus("recoveryStatus","Die Passwörter stimmen nicht überein.",true);
+    return;
+  }
+
+  try{
+    const {error}=await supabaseClient.auth.updateUser({password});
+    if(error)throw error;
+    setStatus("recoveryStatus","Passwort erfolgreich geändert. Du kannst dich jetzt anmelden.");
+    document.getElementById("recoveryForm").reset();
+  }catch(error){
+    setStatus("recoveryStatus",error.message||"Das Passwort konnte nicht geändert werden.",true);
+  }
+});
+
+async function initializeAdmin(){
+  try{
+    const {data:{session},error}=await supabaseClient.auth.getSession();
+    if(error)throw error;
+
+    const params=new URLSearchParams(location.search);
+    const recovery=params.get("type")==="recovery";
+
+    if(recovery){
+      document.getElementById("loginScreen").classList.add("hidden");
+      document.getElementById("recoveryScreen").classList.remove("hidden");
+      return;
+    }
+
+    if(session){
+      const allowed=await checkAdmin(session.user);
+      if(allowed){
+        await showAdminApp(session.user);
+      }else{
+        await supabaseClient.auth.signOut();
+        document.getElementById("loginScreen").classList.remove("hidden");
+        setStatus("loginStatus","Dieses Konto besitzt keine Admin-Berechtigung.",true);
+      }
+    }
+  }catch(error){
+    console.error(error);
+    setStatus("loginStatus","Die Verbindung konnte nicht hergestellt werden.",true);
+  }
 }
-function formatNumber(value){return Number(value||0).toLocaleString("de-DE")}
+
+supabaseClient.auth.onAuthStateChange(async(event,session)=>{
+  if(event==="PASSWORD_RECOVERY"){
+    document.getElementById("loginScreen").classList.add("hidden");
+    document.getElementById("recoveryScreen").classList.remove("hidden");
+  }
+});
 
 async function loadDashboard(){
-  if(!currentUser)return;
-  $("visitorChart").innerHTML="";
-  $("chartMessage").textContent="Statistik wird geladen ...";
+  try{
+    const {data,error}=await supabaseClient
+      .from("visitor_events")
+      .select("*")
+      .order("created_at",{ascending:false});
 
-  const {data,error}=await db.from("visitor_events")
-    .select("visitor_id,event_type,artwork_id,created_at")
-    .order("created_at",{ascending:false})
-    .limit(10000);
+    if(error)throw error;
 
-  if(error){
-    console.error(error);
-    $("chartMessage").textContent="Statistik konnte nicht geladen werden. Prüfe die SQL-Richtlinien.";
-    return;
-  }
-  allEvents=data||[];
+    const events=data||[];
+    const today=new Date();
+    const todayString=today.toISOString().slice(0,10);
 
-  const now=new Date();
-  const today=startOfDay(now);
-  const todayEvents=allEvents.filter(e=>new Date(e.created_at)>=today);
-  const pageViews=allEvents.filter(e=>e.event_type==="page_view");
-  const artViews=allEvents.filter(e=>e.event_type==="artwork_view");
-  const uniqueAll=new Set(allEvents.map(e=>e.visitor_id));
-  const uniqueToday=new Set(todayEvents.map(e=>e.visitor_id));
+    const pageViews=events.filter(e=>e.event_type==="page_view");
+    const artworkViews=events.filter(e=>e.event_type==="artwork_view");
 
-  $("visitorsToday").textContent=formatNumber(uniqueToday.size);
-  $("visitorsTotal").textContent=formatNumber(uniqueAll.size);
-  $("viewsTotal").textContent=formatNumber(pageViews.length);
-  $("artViews").textContent=formatNumber(artViews.length);
+    const allVisitors=new Set(events.map(e=>e.visitor_id).filter(Boolean));
+    const todayVisitors=new Set(
+      events.filter(e=>(e.created_at||"").slice(0,10)===todayString)
+        .map(e=>e.visitor_id).filter(Boolean)
+    );
 
-  const dates=[];
-  for(let i=6;i>=0;i--){
-    const d=new Date(now);
-    d.setDate(d.getDate()-i);
-    dates.push(startOfDay(d));
-  }
-  const counts=dates.map(day=>{
-    const next=new Date(day);next.setDate(next.getDate()+1);
-    return new Set(allEvents.filter(e=>{
-      const t=new Date(e.created_at);
-      return e.event_type==="page_view"&&t>=day&&t<next;
-    }).map(e=>e.visitor_id)).size;
-  });
-  const max=Math.max(1,...counts);
-  $("visitorChart").innerHTML="";
-  dates.forEach((day,i)=>{
-    const wrap=document.createElement("div");wrap.className="bar-wrap";
-    const bar=document.createElement("div");bar.className="bar";
-    bar.style.height=Math.max(3,counts[i]/max*100)+"%";
-    bar.title=counts[i]+" Besucher";
-    const label=document.createElement("div");label.className="bar-label";
-    label.textContent=day.toLocaleDateString("de-DE",{weekday:"short"});
-    wrap.append(bar,label);$("visitorChart").append(wrap);
-  });
-  $("chartMessage").textContent="Angezeigt werden anonyme Browser-Kennungen mit mindestens einem Seitenaufruf pro Tag.";
+    document.getElementById("visitorsToday").textContent=todayVisitors.size;
+    document.getElementById("visitorsTotal").textContent=allVisitors.size;
+    document.getElementById("viewsTotal").textContent=pageViews.length;
+    document.getElementById("artViews").textContent=artworkViews.length;
 
-  const countsByArtwork={};
-  artViews.forEach(e=>{
-    if(e.artwork_id)countsByArtwork[e.artwork_id]=(countsByArtwork[e.artwork_id]||0)+1;
-  });
-  const popular=Object.entries(countsByArtwork).sort((a,b)=>b[1]-a[1]).slice(0,5);
-  $("popularArtworks").innerHTML="";
-  if(!popular.length){
-    $("popularArtworks").textContent="Noch keine Kunstwerk-Aufrufe erfasst.";
-  }else{
-    popular.forEach(([id,count],index)=>{
-      const row=document.createElement("div");row.className="list-row";
-      const name=document.createElement("span");name.textContent=(index+1)+". Kunstwerk "+id;
-      const number=document.createElement("strong");number.textContent=formatNumber(count);
-      row.append(name,number);$("popularArtworks").append(row);
+    const counts={};
+    artworkViews.forEach(event=>{
+      const id=event.artwork_id;
+      if(id)counts[id]=(counts[id]||0)+1;
     });
+
+    const popular=Object.entries(counts)
+      .sort((a,b)=>b[1]-a[1]).slice(0,5);
+
+    const popularContainer=document.getElementById("popularArtworks");
+    popularContainer.innerHTML="";
+
+    if(popular.length===0){
+      popularContainer.textContent="Noch keine Kunstwerk-Aufrufe erfasst.";
+    }else{
+      popular.forEach(([id,count])=>{
+        const row=document.createElement("div");
+        row.className="list-row";
+        const name=document.createElement("span");
+        name.textContent=`Kunstwerk ${id}`;
+        const number=document.createElement("strong");
+        number.textContent=count;
+        row.append(name,number);
+        popularContainer.appendChild(row);
+      });
+    }
+
+    renderVisitorChart(events);
+    await updateArtworkCounts();
+  }catch(error){
+    console.error("Dashboard:",error);
+    setStatus("chartMessage","Die Statistik konnte nicht geladen werden.",true);
   }
-  await loadAdminArtworks(false);
 }
 
-/* KUNSTWERKE */
-async function loadAdminArtworks(refreshDashboard=true){
-  if(!currentUser)return;
-  const {data,error}=await db.from("artworks")
-    .select("id,title,description,is_visible,updated_at")
-    .order("id");
-  if(error){
-    $("artList").textContent="Fehler beim Laden: "+error.message;
-    return;
+function renderVisitorChart(events){
+  const chart=document.getElementById("visitorChart");
+  chart.innerHTML="";
+
+  const days=[];
+  for(let i=6;i>=0;i--){
+    const date=new Date();
+    date.setDate(date.getDate()-i);
+    const key=date.toISOString().slice(0,10);
+    days.push({
+      key,
+      label:date.toLocaleDateString("de-DE",{weekday:"short"})
+    });
   }
-  adminArtworks=data||[];
-  renderAdminArtworks();
-  $("artCount").textContent=adminArtworks.length;
-  $("visibleCount").textContent=adminArtworks.filter(a=>a.is_visible!==false).length;
-  $("hiddenCount").textContent=adminArtworks.filter(a=>a.is_visible===false).length;
+
+  const values=days.map(day=>{
+    return new Set(
+      events.filter(e=>
+        e.event_type==="page_view"&&
+        (e.created_at||"").slice(0,10)===day.key
+      ).map(e=>e.visitor_id).filter(Boolean)
+    ).size;
+  });
+
+  const max=Math.max(1,...values);
+
+  days.forEach((day,index)=>{
+    const wrap=document.createElement("div");
+    wrap.className="bar-wrap";
+
+    const bar=document.createElement("div");
+    bar.className="bar";
+    bar.style.height=Math.max(3,values[index]/max*100)+"%";
+    bar.title=values[index]+" Besucher";
+
+    const label=document.createElement("div");
+    label.className="bar-label";
+    label.textContent=day.label;
+
+    wrap.append(bar,label);
+    chart.appendChild(wrap);
+  });
+
+  document.getElementById("chartMessage").textContent=
+    "Gezählt werden unterschiedliche Browser-Kennungen pro Tag.";
+}
+
+async function updateArtworkCounts(){
+  try{
+    const {data,error}=await supabaseClient
+      .from("artworks")
+      .select("id,is_visible");
+
+    if(error)throw error;
+    const list=data||[];
+    document.getElementById("artCount").textContent=list.length;
+    document.getElementById("visibleCount").textContent=list.filter(a=>a.is_visible!==false).length;
+    document.getElementById("hiddenCount").textContent=list.filter(a=>a.is_visible===false).length;
+  }catch(error){
+    console.warn("Kunstwerkzahlen:",error);
+  }
+}
+
+async function loadAdminArtworks(){
+  const container=document.getElementById("artList");
+  container.textContent="Kunstwerke werden geladen ...";
+
+  try{
+    const {data,error}=await supabaseClient
+      .from("artworks")
+      .select("id,title,description,is_visible")
+      .order("id");
+
+    if(error)throw error;
+    adminArtworks=data||[];
+    renderAdminArtworks();
+  }catch(error){
+    console.error(error);
+    container.textContent="Kunstwerke konnten nicht geladen werden.";
+  }
 }
 
 function renderAdminArtworks(){
-  const list=$("artList");list.innerHTML="";
-  const query=($("artSearch")?.value||"").toLowerCase();
-  const items=adminArtworks.filter(a=>
-    [a.id,a.title,a.description].join(" ").toLowerCase().includes(query)
-  );
-  if(!items.length){list.textContent="Keine passenden Kunstwerke gefunden.";return}
-  items.forEach(a=>{
-    const row=document.createElement("div");row.className="art-row";
-    const img=document.createElement("img");
-    img.src=`./bilder/bild${a.id}.jpg`;img.alt=a.title||"Kunstwerk";
-    img.onerror=()=>img.style.opacity=".2";
-    const info=document.createElement("div");
-    const name=document.createElement("div");name.className="art-name";
-    name.textContent=`${a.id}. ${a.title||"Ohne Titel"}`;
-    const status=document.createElement("span");
-    status.className="tag"+(a.is_visible===false?" off":"");
-    status.textContent=a.is_visible===false?"Ausgeblendet":"Öffentlich sichtbar";
-    info.append(name,status);
-    const actions=document.createElement("div");actions.className="art-actions";
-    const edit=document.createElement("button");edit.textContent="Bearbeiten";edit.onclick=()=>editArtwork(a.id);
-    const toggle=document.createElement("button");
-    toggle.textContent=a.is_visible===false?"Einblenden":"Ausblenden";
-    toggle.onclick=()=>toggleArtworkVisibility(a.id,a.is_visible!==false);
-    actions.append(edit,toggle);
-    row.append(img,info,actions);list.append(row);
+  const container=document.getElementById("artList");
+  const query=document.getElementById("artSearch").value.trim().toLowerCase();
+  container.innerHTML="";
+
+  const filtered=adminArtworks.filter(a=>{
+    const text=[a.id,a.title,a.description].join(" ").toLowerCase();
+    return text.includes(query);
   });
-}
 
-async function editArtwork(id){
-  const a=adminArtworks.find(x=>Number(x.id)===Number(id));
-  if(!a)return;
-  const title=prompt("Titel des Kunstwerks:",a.title||"");
-  if(title===null)return;
-  const description=prompt("Beschreibung des Kunstwerks:",a.description||"");
-  if(description===null)return;
-  if(!title.trim()){alert("Bitte gib einen Titel ein.");return}
-  const {error}=await db.from("artworks").update({
-    title:title.trim(),description:description.trim(),updated_at:new Date().toISOString()
-  }).eq("id",id);
-  if(error){alert("Speichern fehlgeschlagen: "+error.message);return}
-  await loadAdminArtworks();
-}
+  if(filtered.length===0){
+    container.textContent="Keine passenden Kunstwerke gefunden.";
+    return;
+  }
 
-async function toggleArtworkVisibility(id,visible){
-  const action=visible?"ausblenden":"einblenden";
-  if(!confirm("Möchtest du dieses Kunstwerk wirklich "+action+"?"))return;
-  const {error}=await db.from("artworks").update({
-    is_visible:!visible,updated_at:new Date().toISOString()
-  }).eq("id",id);
-  if(error){alert("Änderung fehlgeschlagen: "+error.message);return}
-  await loadAdminArtworks();
+  filtered.forEach(artwork=>{
+    const row=document.createElement("div");
+    row.className="art-row";
+
+    const img=document.createElement("img");
+    img.src=`./bilder/bild${artwork.id}.jpg`;
+    img.alt=artwork.title||"Kunstwerk";
+    img.onerror=()=>img.style.visibility="hidden";
+
+    const info=document.createElement("div");
+    const title=document.createElement("div");
+    title.className="art-name";
+    title.textContent=artwork.title||`Kunstwerk ${artwork.id}`;
+
+    const meta=document.createElement("div");
+    meta.className="muted";
+    meta.textContent=`Nummer ${artwork.id}`;
+
+    const tag=document.createElement("span");
+    tag.className="tag"+(artwork.is_visible===false?" off":"");
+    tag.textContent=artwork.is_visible===false?"Ausgeblendet":"Sichtbar";
+
+    info.append(title,meta,tag);
+
+    const actions=document.createElement("div");
+    actions.className="art-actions";
+
+    const edit=document.createElement("button");
+    edit.textContent="Bearbeiten";
+    edit.onclick=()=>editArtwork(artwork.id);
+
+    const visibility=document.createElement("button");
+    visibility.textContent=artwork.is_visible===false?"Einblenden":"Ausblenden";
+    visibility.onclick=()=>toggleArtworkVisibility(artwork.id);
+
+    actions.append(edit,visibility);
+    row.append(img,info,actions);
+    container.appendChild(row);
+  });
 }
 
 function showAddArtwork(){
-  $("addArtworkBox").classList.remove("hidden");
-  const next=Math.max(0,...adminArtworks.map(a=>Number(a.id)||0))+1;
-  $("newArtworkId").value=next;
-  $("newArtworkTitle").value="";
-  $("newArtworkDescription").value="";
-  setStatus("addArtworkStatus","Bitte lade vorher die Bilddatei bild"+next+".jpg in deinen GitHub-Ordner bilder hoch.");
+  document.getElementById("addArtworkBox").classList.remove("hidden");
+  document.getElementById("addArtworkStatus").textContent="";
 }
 
 async function createArtwork(){
-  const id=Number($("newArtworkId").value);
-  const title=$("newArtworkTitle").value.trim();
-  const description=$("newArtworkDescription").value.trim();
-  if(!Number.isInteger(id)||id<1||!title){
-    setStatus("addArtworkStatus","Bitte gib eine gültige Bildnummer und einen Titel ein.");return;
+  const id=Number(document.getElementById("newArtworkId").value);
+  const title=document.getElementById("newArtworkTitle").value.trim();
+  const description=document.getElementById("newArtworkDescription").value.trim();
+
+  if(!Number.isInteger(id)||id<1){
+    setStatus("addArtworkStatus","Bitte eine gültige Bildnummer eingeben.",true);
+    return;
   }
+
   if(adminArtworks.some(a=>Number(a.id)===id)){
-    setStatus("addArtworkStatus","Diese Bildnummer existiert bereits.");return;
+    setStatus("addArtworkStatus","Diese Bildnummer existiert bereits.",true);
+    return;
   }
-  setStatus("addArtworkStatus","Eintrag wird gespeichert ...");
-  const {error}=await db.from("artworks").insert({
-    id,title,description,is_visible:true,updated_at:new Date().toISOString()
-  });
-  if(error){
-    setStatus("addArtworkStatus","Fehler: "+error.message);return;
+
+  try{
+    const {error}=await supabaseClient.from("artworks").insert({
+      id,title:title||`Kunstwerk ${id}`,
+      description,is_visible:true
+    });
+
+    if(error)throw error;
+
+    setStatus("addArtworkStatus","Eintrag wurde gespeichert.");
+    document.getElementById("newArtworkId").value="";
+    document.getElementById("newArtworkTitle").value="";
+    document.getElementById("newArtworkDescription").value="";
+    await loadAdminArtworks();
+    await updateArtworkCounts();
+  }catch(error){
+    console.error(error);
+    setStatus("addArtworkStatus",error.message||"Eintrag konnte nicht gespeichert werden.",true);
   }
-  setStatus("addArtworkStatus","Kunstwerk-Eintrag wurde angelegt.");
-  await loadAdminArtworks();
 }
 
-/* KÜNSTLERPROFIL */
+async function editArtwork(id){
+  const artwork=adminArtworks.find(a=>Number(a.id)===Number(id));
+  if(!artwork)return;
+
+  const title=prompt("Titel des Kunstwerks:",artwork.title||"");
+  if(title===null)return;
+
+  const description=prompt("Beschreibung des Kunstwerks:",artwork.description||"");
+  if(description===null)return;
+
+  try{
+    const {error}=await supabaseClient.from("artworks")
+      .update({title,description})
+      .eq("id",id);
+
+    if(error)throw error;
+    await loadAdminArtworks();
+    alert("Kunstwerk wurde aktualisiert.");
+  }catch(error){
+    console.error(error);
+    alert("Fehler beim Speichern: "+error.message);
+  }
+}
+
+async function toggleArtworkVisibility(id){
+  const artwork=adminArtworks.find(a=>Number(a.id)===Number(id));
+  if(!artwork)return;
+
+  const nextVisibility=artwork.is_visible===false;
+  const question=nextVisibility?
+    "Dieses Kunstwerk wieder in der Galerie anzeigen?":
+    "Dieses Kunstwerk aus der öffentlichen Galerie ausblenden?";
+
+  if(!confirm(question))return;
+
+  try{
+    const {error}=await supabaseClient.from("artworks")
+      .update({is_visible:nextVisibility})
+      .eq("id",id);
+
+    if(error)throw error;
+    await loadAdminArtworks();
+    await updateArtworkCounts();
+  }catch(error){
+    console.error(error);
+    alert("Die Änderung konnte nicht gespeichert werden: "+error.message);
+  }
+}
+
 async function loadArtist(){
-  const {data,error}=await db.from("artist_profile")
-    .select("id,title,description").eq("id",1).single();
-  if(error){setStatus("artistStatus","Profil konnte nicht geladen werden: "+error.message);return}
-  artistData=data;
-  $("artistTitleInput").value=data.title||"";
-  $("artistDescriptionInput").value=data.description||"";
-}
-async function saveArtist(){
-  const title=$("artistTitleInput").value.trim();
-  const description=$("artistDescriptionInput").value.trim();
-  if(!title||!description){setStatus("artistStatus","Bitte fülle beide Felder aus.");return}
-  setStatus("artistStatus","Speichern läuft ...");
-  const {data,error}=await db.from("artist_profile").update({
-    title,description,updated_at:new Date().toISOString()
-  }).eq("id",1).select().single();
-  if(error){setStatus("artistStatus","Fehler: "+error.message);return}
-  artistData=data;
-  setStatus("artistStatus","Künstlerprofil erfolgreich gespeichert.");
+  try{
+    const {data,error}=await supabaseClient
+      .from("artist_profile")
+      .select("id,title,description")
+      .eq("id",1)
+      .single();
+
+    if(error)throw error;
+
+    document.getElementById("artistTitleInput").value=data.title||"Über die Künstlerin";
+    document.getElementById("artistDescriptionInput").value=data.description||"";
+    setStatus("artistStatus","");
+  }catch(error){
+    console.error("Künstlerprofil:",error);
+    setStatus("artistStatus","Das Künstlerprofil konnte nicht geladen werden.",true);
+  }
 }
 
-/* STARTSEITE */
+async function saveArtist(){
+  const title=document.getElementById("artistTitleInput").value.trim();
+  const description=document.getElementById("artistDescriptionInput").value.trim();
+
+  if(!title){
+    setStatus("artistStatus","Bitte eine Überschrift eingeben.",true);
+    return;
+  }
+
+  try{
+    const {error}=await supabaseClient
+      .from("artist_profile")
+      .update({title,description})
+      .eq("id",1);
+
+    if(error)throw error;
+    setStatus("artistStatus","Das Künstlerprofil wurde erfolgreich gespeichert.");
+  }catch(error){
+    console.error(error);
+    setStatus("artistStatus",error.message||"Das Künstlerprofil konnte nicht gespeichert werden.",true);
+  }
+}
+
+/* STARTSEITE UND INTRO-ANIMATION */
+
 async function loadHomepage(){
-  const {data,error}=await db.from("site_settings")
-    .select("id,welcome_title,welcome_subtitle,welcome_text")
-    .eq("id",1).single();
-  if(error){setStatus("homepageStatus","Einstellungen konnten nicht geladen werden: "+error.message);return}
-  homeData=data;
-  $("welcomeTitle").value=data.welcome_title||"";
-  $("welcomeSubtitle").value=data.welcome_subtitle||"";
-  $("welcomeText").value=data.welcome_text||"";
+  setStatus("homepageStatus","Texte werden geladen ...");
+
+  try{
+    const {data,error}=await supabaseClient
+      .from("site_settings")
+      .select("id,welcome_title,welcome_subtitle,welcome_text,intro_small,intro_title,intro_subtitle,intro_author")
+      .eq("id",1)
+      .single();
+
+    if(error)throw error;
+
+    document.getElementById("welcomeTitle").value=data.welcome_title||"Wort trifft Objekt";
+    document.getElementById("welcomeSubtitle").value=data.welcome_subtitle||"FUNDSTÜCKE · FIGUREN · GEDANKEN";
+    document.getElementById("welcomeText").value=data.welcome_text||"Eine digitale Ausstellung von\nBarbara Schütze";
+
+    document.getElementById("introSmall").value=data.intro_small||"BARBARA SCHÜTZE · DIGITALE AUSSTELLUNG";
+    document.getElementById("introTitle").value=data.intro_title||"Wort trifft Objekt";
+    document.getElementById("introSubtitle").value=data.intro_subtitle||"FUNDSTÜCKE · FIGUREN · GEDANKEN";
+    document.getElementById("introAuthor").value=data.intro_author||"Eine Ausstellung von\nBarbara Schütze";
+
+    setStatus("homepageStatus","");
+  }catch(error){
+    console.error("Startseitentexte:",error);
+    setStatus("homepageStatus","Die Texte konnten nicht geladen werden: "+error.message,true);
+  }
 }
+
 async function saveHomepage(){
-  const welcome_title=$("welcomeTitle").value.trim();
-  const welcome_subtitle=$("welcomeSubtitle").value.trim();
-  const welcome_text=$("welcomeText").value.trim();
-  if(!welcome_title||!welcome_subtitle){setStatus("homepageStatus","Überschrift und Unterzeile dürfen nicht leer sein.");return}
-  setStatus("homepageStatus","Speichern läuft ...");
-  const {error}=await db.from("site_settings").update({
-    welcome_title,welcome_subtitle,welcome_text,updated_at:new Date().toISOString()
-  }).eq("id",1);
-  if(error){setStatus("homepageStatus","Fehler: "+error.message);return}
-  setStatus("homepageStatus","Startseitentexte erfolgreich gespeichert.");
+  const welcomeTitle=document.getElementById("welcomeTitle").value.trim();
+  const welcomeSubtitle=document.getElementById("welcomeSubtitle").value.trim();
+  const welcomeText=document.getElementById("welcomeText").value.trim();
+
+  const introSmall=document.getElementById("introSmall").value.trim();
+  const introTitle=document.getElementById("introTitle").value.trim();
+  const introSubtitle=document.getElementById("introSubtitle").value.trim();
+  const introAuthor=document.getElementById("introAuthor").value.trim();
+
+  if(!welcomeTitle||!welcomeSubtitle){
+    setStatus("homepageStatus","Bitte mindestens Hauptüberschrift und Unterzeile ausfüllen.",true);
+    return;
+  }
+
+  if(!introTitle){
+    setStatus("homepageStatus","Bitte eine Überschrift für die Intro-Animation eingeben.",true);
+    return;
+  }
+
+  try{
+    setStatus("homepageStatus","Änderungen werden gespeichert ...");
+
+    const {error}=await supabaseClient
+      .from("site_settings")
+      .update({
+        welcome_title:welcomeTitle,
+        welcome_subtitle:welcomeSubtitle,
+        welcome_text:welcomeText,
+        intro_small:introSmall,
+        intro_title:introTitle,
+        intro_subtitle:introSubtitle,
+        intro_author:introAuthor,
+        updated_at:new Date().toISOString()
+      })
+      .eq("id",1);
+
+    if(error)throw error;
+
+    setStatus("homepageStatus","Alle Startseiten- und Intro-Texte wurden erfolgreich gespeichert.");
+  }catch(error){
+    console.error("Startseite speichern:",error);
+    setStatus("homepageStatus","Speichern fehlgeschlagen: "+error.message,true);
+  }
 }
+
+/* SEITENSTART */
+
+initializeAdmin();
 </script>
 </body>
 </html>
