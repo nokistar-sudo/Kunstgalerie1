@@ -27,6 +27,7 @@ button{
   color:var(--text);padding:11px 15px;border-radius:4px;transition:.2s;
 }
 button:hover{border-color:var(--accent);transform:translateY(-1px)}
+button:disabled{opacity:.6;cursor:wait;transform:none}
 button.primary{background:var(--accent);color:white;border-color:var(--accent)}
 button.danger{color:#a34e43}
 a{color:var(--accent)}
@@ -95,7 +96,7 @@ h1{font-weight:normal;font-size:clamp(30px,4vw,43px);margin:10px 0}
 .field textarea{min-height:145px;resize:vertical;line-height:1.6}
 .field textarea.short-textarea{min-height:85px}
 .actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:18px}
-.status{font-size:13px;color:var(--muted);min-height:20px;margin-top:12px}
+.status{font-size:13px;color:var(--muted);min-height:20px;margin-top:12px;line-height:1.5}
 .toolbar{display:flex;gap:10px;flex-wrap:wrap;margin:20px 0}
 .toolbar input{
   flex:1;min-width:200px;padding:12px;border:1px solid var(--border);
@@ -420,6 +421,13 @@ let currentUser=null;
 let adminArtworks=[];
 let currentPage="dashboard";
 
+const INTRO_DEFAULTS={
+  intro_small:"BARBARA SCHÜTZE · DIGITALE AUSSTELLUNG",
+  intro_title:"Wort trifft Objekt",
+  intro_subtitle:"FUNDSTÜCKE · FIGUREN · GEDANKEN",
+  intro_author:"Eine Ausstellung von\nBarbara Schütze"
+};
+
 function setStatus(id,message,isError=false){
   const el=document.getElementById(id);
   if(!el)return;
@@ -427,11 +435,32 @@ function setStatus(id,message,isError=false){
   el.style.color=isError?"#b45b4e":"var(--muted)";
 }
 
+/* DATUMSFUNKTIONEN: verwenden die lokale Browser-Zeitzone */
+
+function localDateKey(date){
+  const year=date.getFullYear();
+  const month=String(date.getMonth()+1).padStart(2,"0");
+  const day=String(date.getDate()).padStart(2,"0");
+  return `${year}-${month}-${day}`;
+}
+
+function eventLocalDateKey(value){
+  if(!value)return "";
+  const date=new Date(value);
+  if(Number.isNaN(date.getTime()))return "";
+  return localDateKey(date);
+}
+
+/* DARSTELLUNG */
+
 function toggleTheme(){
   document.body.classList.toggle("dark");
   const dark=document.body.classList.contains("dark");
-  document.getElementById("themeButton").textContent=dark?"☀ Hell":"☾ Dunkel";
-  try{localStorage.setItem("kunstgalerie-theme",dark?"dark":"light")}catch(e){}
+  const button=document.getElementById("themeButton");
+  if(button)button.textContent=dark?"☀ Hell":"☾ Dunkel";
+  try{
+    localStorage.setItem("kunstgalerie-theme",dark?"dark":"light");
+  }catch(e){}
 }
 
 try{
@@ -442,15 +471,20 @@ try{
   }
 }catch(e){}
 
+/* NAVIGATION */
+
 function showSection(name,button){
   currentPage=name;
+
   document.querySelectorAll(".page").forEach(page=>page.classList.remove("active"));
   const target=document.getElementById("page-"+name);
   if(target)target.classList.add("active");
 
   document.querySelectorAll(".nav-button").forEach(nav=>nav.classList.remove("active"));
-  if(button)button.classList.add("active");
-  else{
+
+  if(button){
+    button.classList.add("active");
+  }else{
     const nav=document.querySelector(`.nav-button[data-page="${name}"]`);
     if(nav)nav.classList.add("active");
   }
@@ -461,8 +495,11 @@ function showSection(name,button){
   if(name==="homepage")loadHomepage();
 }
 
+/* ADMIN-PRÜFUNG UND ANMELDUNG */
+
 async function checkAdmin(user){
   if(!user)return false;
+
   try{
     const {data,error}=await supabaseClient
       .from("admins")
@@ -487,19 +524,29 @@ async function showAdminApp(user){
 }
 
 async function logout(){
-  await supabaseClient.auth.signOut();
-  currentUser=null;
-  document.getElementById("adminApp").classList.add("hidden");
-  document.getElementById("loginScreen").classList.remove("hidden");
-  document.getElementById("password").value="";
-  setStatus("loginStatus","Du wurdest abgemeldet.");
+  try{
+    const {error}=await supabaseClient.auth.signOut();
+    if(error)throw error;
+
+    currentUser=null;
+    document.getElementById("adminApp").classList.add("hidden");
+    document.getElementById("recoveryScreen").classList.add("hidden");
+    document.getElementById("loginScreen").classList.remove("hidden");
+    document.getElementById("password").value="";
+    setStatus("loginStatus","Du wurdest abgemeldet.");
+  }catch(error){
+    console.error("Abmeldung fehlgeschlagen:",error);
+    alert("Die Abmeldung ist fehlgeschlagen. Bitte versuche es erneut.");
+  }
 }
 
 document.getElementById("loginForm").addEventListener("submit",async event=>{
   event.preventDefault();
+
   const email=document.getElementById("email").value.trim();
   const password=document.getElementById("password").value;
   const button=event.submitter;
+
   button.disabled=true;
   button.textContent="Anmeldung läuft ...";
   setStatus("loginStatus","Anmeldung wird geprüft ...");
@@ -509,6 +556,7 @@ document.getElementById("loginForm").addEventListener("submit",async event=>{
     if(error)throw error;
 
     const allowed=await checkAdmin(data.user);
+
     if(!allowed){
       await supabaseClient.auth.signOut();
       throw new Error("Dieses Konto besitzt keine Admin-Berechtigung.");
@@ -523,8 +571,11 @@ document.getElementById("loginForm").addEventListener("submit",async event=>{
   }
 });
 
+/* PASSWORT-WIEDERHERSTELLUNG */
+
 document.getElementById("recoveryForm").addEventListener("submit",async event=>{
   event.preventDefault();
+
   const password=document.getElementById("newPassword").value;
   const confirm=document.getElementById("confirmPassword").value;
 
@@ -532,6 +583,7 @@ document.getElementById("recoveryForm").addEventListener("submit",async event=>{
     setStatus("recoveryStatus","Das Passwort muss mindestens 8 Zeichen enthalten.",true);
     return;
   }
+
   if(password!==confirm){
     setStatus("recoveryStatus","Die Passwörter stimmen nicht überein.",true);
     return;
@@ -540,6 +592,7 @@ document.getElementById("recoveryForm").addEventListener("submit",async event=>{
   try{
     const {error}=await supabaseClient.auth.updateUser({password});
     if(error)throw error;
+
     setStatus("recoveryStatus","Passwort erfolgreich geändert. Du kannst dich jetzt anmelden.");
     document.getElementById("recoveryForm").reset();
   }catch(error){
@@ -549,9 +602,10 @@ document.getElementById("recoveryForm").addEventListener("submit",async event=>{
 
 async function initializeAdmin(){
   try{
-    const {data:{session},error}=await supabaseClient.auth.getSession();
+    const {data,error}=await supabaseClient.auth.getSession();
     if(error)throw error;
 
+    const session=data.session;
     const params=new URLSearchParams(location.search);
     const recovery=params.get("type")==="recovery";
 
@@ -563,6 +617,7 @@ async function initializeAdmin(){
 
     if(session){
       const allowed=await checkAdmin(session.user);
+
       if(allowed){
         await showAdminApp(session.user);
       }else{
@@ -572,19 +627,24 @@ async function initializeAdmin(){
       }
     }
   }catch(error){
-    console.error(error);
-    setStatus("loginStatus","Die Verbindung konnte nicht hergestellt werden.",true);
+    console.error("Initialisierung fehlgeschlagen:",error);
+    setStatus("loginStatus","Die Verbindung konnte nicht hergestellt werden. Bitte lade die Seite neu.",true);
   }
 }
 
-supabaseClient.auth.onAuthStateChange(async(event,session)=>{
+supabaseClient.auth.onAuthStateChange((event,session)=>{
   if(event==="PASSWORD_RECOVERY"){
     document.getElementById("loginScreen").classList.add("hidden");
+    document.getElementById("adminApp").classList.add("hidden");
     document.getElementById("recoveryScreen").classList.remove("hidden");
   }
 });
 
+/* DASHBOARD UND BESUCHERSTATISTIK */
+
 async function loadDashboard(){
+  setStatus("chartMessage","Statistik wird geladen ...");
+
   try{
     const {data,error}=await supabaseClient
       .from("visitor_events")
@@ -594,16 +654,20 @@ async function loadDashboard(){
     if(error)throw error;
 
     const events=data||[];
-    const today=new Date();
-    const todayString=today.toISOString().slice(0,10);
+    const todayString=localDateKey(new Date());
 
     const pageViews=events.filter(e=>e.event_type==="page_view");
     const artworkViews=events.filter(e=>e.event_type==="artwork_view");
 
-    const allVisitors=new Set(events.map(e=>e.visitor_id).filter(Boolean));
+    const allVisitors=new Set(
+      events.map(e=>e.visitor_id).filter(Boolean)
+    );
+
     const todayVisitors=new Set(
-      events.filter(e=>(e.created_at||"").slice(0,10)===todayString)
-        .map(e=>e.visitor_id).filter(Boolean)
+      events
+        .filter(e=>eventLocalDateKey(e.created_at)===todayString)
+        .map(e=>e.visitor_id)
+        .filter(Boolean)
     );
 
     document.getElementById("visitorsToday").textContent=todayVisitors.size;
@@ -612,13 +676,15 @@ async function loadDashboard(){
     document.getElementById("artViews").textContent=artworkViews.length;
 
     const counts={};
+
     artworkViews.forEach(event=>{
       const id=event.artwork_id;
       if(id)counts[id]=(counts[id]||0)+1;
     });
 
     const popular=Object.entries(counts)
-      .sort((a,b)=>b[1]-a[1]).slice(0,5);
+      .sort((a,b)=>b[1]-a[1])
+      .slice(0,5);
 
     const popularContainer=document.getElementById("popularArtworks");
     popularContainer.innerHTML="";
@@ -629,10 +695,13 @@ async function loadDashboard(){
       popular.forEach(([id,count])=>{
         const row=document.createElement("div");
         row.className="list-row";
+
         const name=document.createElement("span");
         name.textContent=`Kunstwerk ${id}`;
+
         const number=document.createElement("strong");
         number.textContent=count;
+
         row.append(name,number);
         popularContainer.appendChild(row);
       });
@@ -640,9 +709,10 @@ async function loadDashboard(){
 
     renderVisitorChart(events);
     await updateArtworkCounts();
+
   }catch(error){
     console.error("Dashboard:",error);
-    setStatus("chartMessage","Die Statistik konnte nicht geladen werden.",true);
+    setStatus("chartMessage","Die Statistik konnte nicht geladen werden: "+error.message,true);
   }
 }
 
@@ -651,22 +721,26 @@ function renderVisitorChart(events){
   chart.innerHTML="";
 
   const days=[];
+
   for(let i=6;i>=0;i--){
     const date=new Date();
+    date.setHours(12,0,0,0);
     date.setDate(date.getDate()-i);
-    const key=date.toISOString().slice(0,10);
+
     days.push({
-      key,
+      key:localDateKey(date),
       label:date.toLocaleDateString("de-DE",{weekday:"short"})
     });
   }
 
+  const pageViewEvents=events.filter(e=>e.event_type==="page_view");
+
   const values=days.map(day=>{
     return new Set(
-      events.filter(e=>
-        e.event_type==="page_view"&&
-        (e.created_at||"").slice(0,10)===day.key
-      ).map(e=>e.visitor_id).filter(Boolean)
+      pageViewEvents
+        .filter(e=>eventLocalDateKey(e.created_at)===day.key)
+        .map(e=>e.visitor_id)
+        .filter(Boolean)
     ).size;
   });
 
@@ -700,14 +774,21 @@ async function updateArtworkCounts(){
       .select("id,is_visible");
 
     if(error)throw error;
+
     const list=data||[];
+
     document.getElementById("artCount").textContent=list.length;
-    document.getElementById("visibleCount").textContent=list.filter(a=>a.is_visible!==false).length;
-    document.getElementById("hiddenCount").textContent=list.filter(a=>a.is_visible===false).length;
+    document.getElementById("visibleCount").textContent=
+      list.filter(a=>a.is_visible!==false).length;
+    document.getElementById("hiddenCount").textContent=
+      list.filter(a=>a.is_visible===false).length;
+
   }catch(error){
     console.warn("Kunstwerkzahlen:",error);
   }
 }
+
+/* KUNSTWERKE VERWALTEN */
 
 async function loadAdminArtworks(){
   const container=document.getElementById("artList");
@@ -720,17 +801,20 @@ async function loadAdminArtworks(){
       .order("id");
 
     if(error)throw error;
+
     adminArtworks=data||[];
     renderAdminArtworks();
+
   }catch(error){
     console.error(error);
-    container.textContent="Kunstwerke konnten nicht geladen werden.";
+    container.textContent="Kunstwerke konnten nicht geladen werden: "+error.message;
   }
 }
 
 function renderAdminArtworks(){
   const container=document.getElementById("artList");
   const query=document.getElementById("artSearch").value.trim().toLowerCase();
+
   container.innerHTML="";
 
   const filtered=adminArtworks.filter(a=>{
@@ -753,6 +837,7 @@ function renderAdminArtworks(){
     img.onerror=()=>img.style.visibility="hidden";
 
     const info=document.createElement("div");
+
     const title=document.createElement("div");
     title.className="art-name";
     title.textContent=artwork.title||`Kunstwerk ${artwork.id}`;
@@ -806,18 +891,23 @@ async function createArtwork(){
 
   try{
     const {error}=await supabaseClient.from("artworks").insert({
-      id,title:title||`Kunstwerk ${id}`,
-      description,is_visible:true
+      id,
+      title:title||`Kunstwerk ${id}`,
+      description,
+      is_visible:true
     });
 
     if(error)throw error;
 
     setStatus("addArtworkStatus","Eintrag wurde gespeichert.");
+
     document.getElementById("newArtworkId").value="";
     document.getElementById("newArtworkTitle").value="";
     document.getElementById("newArtworkDescription").value="";
+
     await loadAdminArtworks();
     await updateArtworkCounts();
+
   }catch(error){
     console.error(error);
     setStatus("addArtworkStatus",error.message||"Eintrag konnte nicht gespeichert werden.",true);
@@ -835,13 +925,16 @@ async function editArtwork(id){
   if(description===null)return;
 
   try{
-    const {error}=await supabaseClient.from("artworks")
+    const {error}=await supabaseClient
+      .from("artworks")
       .update({title,description})
       .eq("id",id);
 
     if(error)throw error;
+
     await loadAdminArtworks();
     alert("Kunstwerk wurde aktualisiert.");
+
   }catch(error){
     console.error(error);
     alert("Fehler beim Speichern: "+error.message);
@@ -853,25 +946,31 @@ async function toggleArtworkVisibility(id){
   if(!artwork)return;
 
   const nextVisibility=artwork.is_visible===false;
-  const question=nextVisibility?
-    "Dieses Kunstwerk wieder in der Galerie anzeigen?":
-    "Dieses Kunstwerk aus der öffentlichen Galerie ausblenden?";
+
+  const question=nextVisibility
+    ?"Dieses Kunstwerk wieder in der Galerie anzeigen?"
+    :"Dieses Kunstwerk aus der öffentlichen Galerie ausblenden?";
 
   if(!confirm(question))return;
 
   try{
-    const {error}=await supabaseClient.from("artworks")
+    const {error}=await supabaseClient
+      .from("artworks")
       .update({is_visible:nextVisibility})
       .eq("id",id);
 
     if(error)throw error;
+
     await loadAdminArtworks();
     await updateArtworkCounts();
+
   }catch(error){
     console.error(error);
     alert("Die Änderung konnte nicht gespeichert werden: "+error.message);
   }
 }
+
+/* KÜNSTLERPROFIL */
 
 async function loadArtist(){
   try{
@@ -885,10 +984,12 @@ async function loadArtist(){
 
     document.getElementById("artistTitleInput").value=data.title||"Über die Künstlerin";
     document.getElementById("artistDescriptionInput").value=data.description||"";
+
     setStatus("artistStatus","");
+
   }catch(error){
     console.error("Künstlerprofil:",error);
-    setStatus("artistStatus","Das Künstlerprofil konnte nicht geladen werden.",true);
+    setStatus("artistStatus","Das Künstlerprofil konnte nicht geladen werden: "+error.message,true);
   }
 }
 
@@ -908,7 +1009,9 @@ async function saveArtist(){
       .eq("id",1);
 
     if(error)throw error;
+
     setStatus("artistStatus","Das Künstlerprofil wurde erfolgreich gespeichert.");
+
   }catch(error){
     console.error(error);
     setStatus("artistStatus",error.message||"Das Künstlerprofil konnte nicht gespeichert werden.",true);
@@ -917,31 +1020,78 @@ async function saveArtist(){
 
 /* STARTSEITE UND INTRO-ANIMATION */
 
+/*
+  Die normalen Begrüßungstexte werden zuerst separat geladen.
+  Die Intro-Spalten werden anschließend zusätzlich abgefragt.
+  Dadurch funktioniert die Seite auch dann, wenn die Intro-Spalten
+  in Supabase noch nicht angelegt wurden.
+*/
+
 async function loadHomepage(){
   setStatus("homepageStatus","Texte werden geladen ...");
 
   try{
     const {data,error}=await supabaseClient
       .from("site_settings")
-      .select("id,welcome_title,welcome_subtitle,welcome_text,intro_small,intro_title,intro_subtitle,intro_author")
+      .select("id,welcome_title,welcome_subtitle,welcome_text")
       .eq("id",1)
       .single();
 
     if(error)throw error;
 
-    document.getElementById("welcomeTitle").value=data.welcome_title||"Wort trifft Objekt";
-    document.getElementById("welcomeSubtitle").value=data.welcome_subtitle||"FUNDSTÜCKE · FIGUREN · GEDANKEN";
-    document.getElementById("welcomeText").value=data.welcome_text||"Eine digitale Ausstellung von\nBarbara Schütze";
+    document.getElementById("welcomeTitle").value=
+      data.welcome_title||"Wort trifft Objekt";
 
-    document.getElementById("introSmall").value=data.intro_small||"BARBARA SCHÜTZE · DIGITALE AUSSTELLUNG";
-    document.getElementById("introTitle").value=data.intro_title||"Wort trifft Objekt";
-    document.getElementById("introSubtitle").value=data.intro_subtitle||"FUNDSTÜCKE · FIGUREN · GEDANKEN";
-    document.getElementById("introAuthor").value=data.intro_author||"Eine Ausstellung von\nBarbara Schütze";
+    document.getElementById("welcomeSubtitle").value=
+      data.welcome_subtitle||"FUNDSTÜCKE · FIGUREN · GEDANKEN";
 
-    setStatus("homepageStatus","");
+    document.getElementById("welcomeText").value=
+      data.welcome_text||"Eine digitale Ausstellung von\nBarbara Schütze";
+
   }catch(error){
     console.error("Startseitentexte:",error);
-    setStatus("homepageStatus","Die Texte konnten nicht geladen werden: "+error.message,true);
+    setStatus("homepageStatus","Die normalen Startseitentexte konnten nicht geladen werden: "+error.message,true);
+    return;
+  }
+
+  /* Optionale Intro-Texte laden */
+
+  try{
+    const {data,error}=await supabaseClient
+      .from("site_settings")
+      .select("intro_small,intro_title,intro_subtitle,intro_author")
+      .eq("id",1)
+      .single();
+
+    if(error)throw error;
+
+    document.getElementById("introSmall").value=
+      data.intro_small||INTRO_DEFAULTS.intro_small;
+
+    document.getElementById("introTitle").value=
+      data.intro_title||INTRO_DEFAULTS.intro_title;
+
+    document.getElementById("introSubtitle").value=
+      data.intro_subtitle||INTRO_DEFAULTS.intro_subtitle;
+
+    document.getElementById("introAuthor").value=
+      data.intro_author||INTRO_DEFAULTS.intro_author;
+
+    setStatus("homepageStatus","Alle Startseitentexte wurden geladen.");
+
+  }catch(error){
+    console.warn("Intro-Spalten sind möglicherweise noch nicht vorhanden:",error);
+
+    document.getElementById("introSmall").value=INTRO_DEFAULTS.intro_small;
+    document.getElementById("introTitle").value=INTRO_DEFAULTS.intro_title;
+    document.getElementById("introSubtitle").value=INTRO_DEFAULTS.intro_subtitle;
+    document.getElementById("introAuthor").value=INTRO_DEFAULTS.intro_author;
+
+    setStatus(
+      "homepageStatus",
+      "Die normalen Startseitentexte wurden geladen. Für das Speichern der Intro-Texte fehlt möglicherweise noch die SQL-Erweiterung.",
+      true
+    );
   }
 }
 
@@ -965,15 +1115,35 @@ async function saveHomepage(){
     return;
   }
 
-  try{
-    setStatus("homepageStatus","Änderungen werden gespeichert ...");
+  setStatus("homepageStatus","Änderungen werden gespeichert ...");
 
+  /* Zuerst die normalen Startseitentexte speichern */
+
+  try{
     const {error}=await supabaseClient
       .from("site_settings")
       .update({
         welcome_title:welcomeTitle,
         welcome_subtitle:welcomeSubtitle,
         welcome_text:welcomeText,
+        updated_at:new Date().toISOString()
+      })
+      .eq("id",1);
+
+    if(error)throw error;
+
+  }catch(error){
+    console.error("Startseitentexte speichern:",error);
+    setStatus("homepageStatus","Die normalen Startseitentexte konnten nicht gespeichert werden: "+error.message,true);
+    return;
+  }
+
+  /* Danach die Intro-Texte separat speichern */
+
+  try{
+    const {error}=await supabaseClient
+      .from("site_settings")
+      .update({
         intro_small:introSmall,
         intro_title:introTitle,
         intro_subtitle:introSubtitle,
@@ -985,9 +1155,15 @@ async function saveHomepage(){
     if(error)throw error;
 
     setStatus("homepageStatus","Alle Startseiten- und Intro-Texte wurden erfolgreich gespeichert.");
+
   }catch(error){
-    console.error("Startseite speichern:",error);
-    setStatus("homepageStatus","Speichern fehlgeschlagen: "+error.message,true);
+    console.error("Intro-Texte speichern:",error);
+
+    setStatus(
+      "homepageStatus",
+      "Die normalen Startseitentexte wurden gespeichert. Die Intro-Texte konnten noch nicht gespeichert werden. Bitte führe zuerst die SQL-Erweiterung für die Intro-Spalten in Supabase aus.",
+      true
+    );
   }
 }
 
