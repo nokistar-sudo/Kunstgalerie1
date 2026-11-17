@@ -232,7 +232,8 @@ th{color:var(--muted);font-weight:normal}
     <aside class="sidebar">
       <div class="side-label">Verwaltung</div>
       <button class="nav-button active" data-page="dashboard" onclick="showSection('dashboard',this)"><span class="nav-icon">▦</span>Dashboard</button>
-      <button class="nav-button" data-page="artworks" onclick="showSection('artworks',this)"><span class="nav-icon">▧</span>Kunstwerke</button>
+      <button class="nav-button" data-page="artworks" onclick="showSection('artworks',this)"><span class="nav-icon">▧</span>Bilder</button>
+      <button class="nav-button" data-page="aquarelles" onclick="showSection('aquarelles',this)"><span class="nav-icon">▤</span>Aquarelle</button>
       <button class="nav-button" data-page="artist" onclick="showSection('artist',this)"><span class="nav-icon">◉</span>Künstlerprofil</button>
       <button class="nav-button" data-page="homepage" onclick="showSection('homepage',this)"><span class="nav-icon">⌂</span>Startseite</button>
       <button class="nav-button" data-page="settings" onclick="showSection('settings',this)"><span class="nav-icon">⚙</span>Einstellungen</button>
@@ -282,7 +283,9 @@ th{color:var(--muted);font-weight:normal}
           </div>
           <div class="box">
             <h2>Aktueller Bestand</h2>
-            <div class="list-row"><span>Alle Kunstwerke</span><strong id="artCount">–</strong></div>
+            <div class="list-row"><span>Alle Werke</span><strong id="artCount">–</strong></div>
+            <div class="list-row"><span>Bilder (1–50)</span><strong id="bilderCount">–</strong></div>
+            <div class="list-row"><span>Aquarelle (51–118)</span><strong id="aquarelleCount">–</strong></div>
             <div class="list-row"><span>Sichtbare Werke</span><strong id="visibleCount">–</strong></div>
             <div class="list-row"><span>Ausgeblendete Werke</span><strong id="hiddenCount">–</strong></div>
           </div>
@@ -293,8 +296,8 @@ th{color:var(--muted);font-weight:normal}
 
       <section class="page" id="page-artworks">
         <div class="eyebrow">INHALTE</div>
-        <h1>Kunstwerke verwalten</h1>
-        <p class="lead">Bearbeite Titel und Beschreibungen oder blende Werke in der öffentlichen Galerie aus.</p>
+        <h1 id="artworkManagerTitle">Bilder verwalten</h1>
+        <p class="lead" id="artworkManagerLead">Verwalte die 50 Bilder der Ausstellung. Titel, Beschreibungen und Sichtbarkeit lassen sich hier bearbeiten.</p>
         <div class="toolbar">
           <input id="artSearch" placeholder="Kunstwerk suchen ..." oninput="renderAdminArtworks()">
           <button class="primary" onclick="showAddArtwork()">+ Eintrag hinzufügen</button>
@@ -302,8 +305,8 @@ th{color:var(--muted);font-weight:normal}
 
         <div class="box hidden" id="addArtworkBox">
           <h2>Neues Kunstwerk anlegen</h2>
-          <p class="muted">Lade das Bild zuerst in GitHub in den Ordner <b>bilder</b> hoch. Verwende den Dateinamen <b>bild[Nummer].jpg</b>.</p>
-          <div class="field"><label for="newArtworkId">Bildnummer / ID</label><input id="newArtworkId" type="number" min="1"></div>
+          <p class="muted">Lade das Bild zuerst in GitHub in den Ordner <b>bilder</b> hoch. Verwende den Dateinamen <b>bild[Nummer].jpg</b>. Bilder verwenden die Nummern 1–50, Aquarelle die Nummern 51–118.</p>
+          <div class="field"><label for="newArtworkId">Bildnummer / ID</label><input id="newArtworkId" type="number" min="1" max="50"></div>
           <div class="field"><label for="newArtworkTitle">Titel</label><input id="newArtworkTitle" maxlength="200"></div>
           <div class="field"><label for="newArtworkDescription">Beschreibung</label><textarea id="newArtworkDescription"></textarea></div>
           <div class="actions">
@@ -420,6 +423,7 @@ const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 let currentUser=null;
 let adminArtworks=[];
 let currentPage="dashboard";
+let currentArtworkCategory="bilder";
 
 const INTRO_DEFAULTS={
   intro_small:"BARBARA SCHÜTZE · DIGITALE AUSSTELLUNG",
@@ -476,8 +480,10 @@ try{
 function showSection(name,button){
   currentPage=name;
 
+  // Bilder und Aquarelle sind getrennte Verwaltungsansichten derselben Seite.
+  const pageName=name==="aquarelles"?"artworks":name;
   document.querySelectorAll(".page").forEach(page=>page.classList.remove("active"));
-  const target=document.getElementById("page-"+name);
+  const target=document.getElementById("page-"+pageName);
   if(target)target.classList.add("active");
 
   document.querySelectorAll(".nav-button").forEach(nav=>nav.classList.remove("active"));
@@ -490,7 +496,7 @@ function showSection(name,button){
   }
 
   if(name==="dashboard")loadDashboard();
-  if(name==="artworks")loadAdminArtworks();
+  if(name==="artworks"||name==="aquarelles")loadAdminArtworks(name);
   if(name==="artist")loadArtist();
   if(name==="homepage")loadHomepage();
 }
@@ -776,8 +782,12 @@ async function updateArtworkCounts(){
     if(error)throw error;
 
     const list=data||[];
+    const bilder=list.filter(a=>Number(a.id)>=1&&Number(a.id)<=50);
+    const aquarelle=list.filter(a=>Number(a.id)>=51&&Number(a.id)<=118);
 
     document.getElementById("artCount").textContent=list.length;
+    document.getElementById("bilderCount").textContent=bilder.length;
+    document.getElementById("aquarelleCount").textContent=aquarelle.length;
     document.getElementById("visibleCount").textContent=
       list.filter(a=>a.is_visible!==false).length;
     document.getElementById("hiddenCount").textContent=
@@ -790,9 +800,29 @@ async function updateArtworkCounts(){
 
 /* KUNSTWERKE VERWALTEN */
 
-async function loadAdminArtworks(){
+async function loadAdminArtworks(category=currentArtworkCategory){
+  currentArtworkCategory=category;
   const container=document.getElementById("artList");
-  container.textContent="Kunstwerke werden geladen ...";
+  const isAquarelle=category==="aquarelles";
+
+  document.getElementById("artworkManagerTitle").textContent=
+    isAquarelle?"Aquarelle verwalten":"Bilder verwalten";
+  document.getElementById("artworkManagerLead").textContent=
+    isAquarelle
+      ?"Verwalte die 68 Aquarelle. Die Bildnummern reichen von 51 bis 118."
+      :"Verwalte die 50 Bilder der Ausstellung. Die Bildnummern reichen von 1 bis 50.";
+
+  const idInput=document.getElementById("newArtworkId");
+  idInput.min=isAquarelle?"51":"1";
+  idInput.max=isAquarelle?"118":"50";
+  idInput.placeholder=isAquarelle?"51–118":"1–50";
+
+  document.getElementById("artSearch").placeholder=
+    isAquarelle?"Aquarell suchen ...":"Bild suchen ...";
+
+  document.getElementById("addArtworkBox").classList.add("hidden");
+  document.getElementById("artSearch").value="";
+  container.textContent=isAquarelle?"Aquarelle werden geladen ...":"Bilder werden geladen ...";
 
   try{
     const {data,error}=await supabaseClient
@@ -802,12 +832,17 @@ async function loadAdminArtworks(){
 
     if(error)throw error;
 
-    adminArtworks=data||[];
+    const all=data||[];
+    adminArtworks=all.filter(a=>{
+      const id=Number(a.id);
+      return isAquarelle?(id>=51&&id<=118):(id>=1&&id<=50);
+    });
+
     renderAdminArtworks();
 
   }catch(error){
     console.error(error);
-    container.textContent="Kunstwerke konnten nicht geladen werden: "+error.message;
+    container.textContent="Einträge konnten nicht geladen werden: "+error.message;
   }
 }
 
@@ -823,7 +858,9 @@ function renderAdminArtworks(){
   });
 
   if(filtered.length===0){
-    container.textContent="Keine passenden Kunstwerke gefunden.";
+    container.textContent=currentArtworkCategory==="aquarelles"
+      ?"Noch keine Aquarelle eingetragen. Lege einen Eintrag mit einer Bildnummer von 51 bis 118 an."
+      :"Keine passenden Bilder gefunden.";
     return;
   }
 
@@ -844,7 +881,7 @@ function renderAdminArtworks(){
 
     const meta=document.createElement("div");
     meta.className="muted";
-    meta.textContent=`Nummer ${artwork.id}`;
+    meta.textContent=`${currentArtworkCategory==="aquarelles"?"Aquarell":"Bild"} · Nummer ${artwork.id}`;
 
     const tag=document.createElement("span");
     tag.className="tag"+(artwork.is_visible===false?" off":"");
@@ -872,6 +909,10 @@ function renderAdminArtworks(){
 function showAddArtwork(){
   document.getElementById("addArtworkBox").classList.remove("hidden");
   document.getElementById("addArtworkStatus").textContent="";
+  const input=document.getElementById("newArtworkId");
+  input.min=currentArtworkCategory==="aquarelles"?"51":"1";
+  input.max=currentArtworkCategory==="aquarelles"?"118":"50";
+  input.placeholder=currentArtworkCategory==="aquarelles"?"51–118":"1–50";
 }
 
 async function createArtwork(){
@@ -879,8 +920,18 @@ async function createArtwork(){
   const title=document.getElementById("newArtworkTitle").value.trim();
   const description=document.getElementById("newArtworkDescription").value.trim();
 
-  if(!Number.isInteger(id)||id<1){
-    setStatus("addArtworkStatus","Bitte eine gültige Bildnummer eingeben.",true);
+  const isAquarelle=currentArtworkCategory==="aquarelles";
+  const minId=isAquarelle?51:1;
+  const maxId=isAquarelle?118:50;
+
+  if(!Number.isInteger(id)||id<minId||id>maxId){
+    setStatus(
+      "addArtworkStatus",
+      isAquarelle
+        ?"Für Aquarelle sind nur Bildnummern von 51 bis 118 erlaubt."
+        :"Für Bilder sind nur Bildnummern von 1 bis 50 erlaubt.",
+      true
+    );
     return;
   }
 
@@ -892,7 +943,7 @@ async function createArtwork(){
   try{
     const {error}=await supabaseClient.from("artworks").insert({
       id,
-      title:title||`Kunstwerk ${id}`,
+      title:title||(isAquarelle?`Aquarell ${id}`:`Bild ${id}`),
       description,
       is_visible:true
     });
@@ -905,7 +956,7 @@ async function createArtwork(){
     document.getElementById("newArtworkTitle").value="";
     document.getElementById("newArtworkDescription").value="";
 
-    await loadAdminArtworks();
+    await loadAdminArtworks(currentArtworkCategory);
     await updateArtworkCounts();
 
   }catch(error){
@@ -932,7 +983,7 @@ async function editArtwork(id){
 
     if(error)throw error;
 
-    await loadAdminArtworks();
+    await loadAdminArtworks(currentArtworkCategory);
     alert("Kunstwerk wurde aktualisiert.");
 
   }catch(error){
@@ -948,8 +999,8 @@ async function toggleArtworkVisibility(id){
   const nextVisibility=artwork.is_visible===false;
 
   const question=nextVisibility
-    ?"Dieses Kunstwerk wieder in der Galerie anzeigen?"
-    :"Dieses Kunstwerk aus der öffentlichen Galerie ausblenden?";
+    ?"Dieses Werk wieder auf der Website anzeigen?"
+    :"Dieses Werk auf der Website ausblenden?";
 
   if(!confirm(question))return;
 
@@ -961,7 +1012,7 @@ async function toggleArtworkVisibility(id){
 
     if(error)throw error;
 
-    await loadAdminArtworks();
+    await loadAdminArtworks(currentArtworkCategory);
     await updateArtworkCounts();
 
   }catch(error){
@@ -969,6 +1020,7 @@ async function toggleArtworkVisibility(id){
     alert("Die Änderung konnte nicht gespeichert werden: "+error.message);
   }
 }
+
 
 /* KÜNSTLERPROFIL */
 
