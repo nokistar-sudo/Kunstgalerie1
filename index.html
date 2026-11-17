@@ -69,7 +69,7 @@ section{max-width:1250px;margin:auto;padding:25px 6% 70px}
   animation:fadeIn .5s ease both;
 }
 .panel.active{display:block}
-#gallerySection.hidden{display:none}
+#bilderSection.hidden,#aquarelleSection.hidden{display:none}
 
 /* Künstlerbeschreibung: Zeilenumbrüche und Absätze sichtbar erhalten */
 #artistDescription{
@@ -202,7 +202,7 @@ Barbara Schütze</div>
 </div>
 
 <header>
-  <a class="logo" href="#" onclick="showPage('gallery');return false">Wort trifft Objekt</a>
+  <a class="logo" href="#" onclick="showPage('bilder');return false">Wort trifft Objekt</a>
   <div class="header-actions">
     <button onclick="toggleTheme()" id="themeButton">☾ Dunkel</button>
     <a class="button" href="./admin.html">⚙ Admin</a>
@@ -217,22 +217,36 @@ Barbara Schütze</div>
 </div>
 
 <nav>
-  <button onclick="showPage('gallery')">Galerie</button>
+  <button onclick="showPage('bilder')">Bilder</button>
+  <button onclick="showPage('aquarelle')">Aquarelle</button>
   <button onclick="showPage('about')">Über die Künstlerin</button>
   <a class="button" href="./Kunstkatalog.pdf" target="_blank" rel="noopener">PDF-Katalog</a>
 </nav>
 
-<section id="gallerySection">
-  <h2 class="section-title">Die Ausstellung</h2>
-  <p class="section-description">Fünfzig Werke – fünfzig eigene Perspektiven.</p>
+<section id="bilderSection">
+  <h2 class="section-title">Bilder</h2>
+  <p class="section-description">Die 50 Bilder der Ausstellung.</p>
 
   <div class="search-wrap">
-    <input type="search" id="searchInput" placeholder="⌕ Kunstwerke suchen ..." aria-label="Kunstwerke suchen" oninput="searchArtworks()">
-    <div class="search-hint">Durchsuche die Ausstellung nach Nummer, Titel oder Beschreibung.</div>
+    <input type="search" id="bilderSearchInput" placeholder="⌕ Bilder suchen ..." aria-label="Bilder suchen" oninput="searchArtworks('bilder')">
+    <div class="search-hint">Durchsuche die Bilder nach Nummer, Titel oder Beschreibung.</div>
   </div>
 
-  <div class="gallery" id="gallery"></div>
-  <div class="no-results" id="noResults">Keine passenden Kunstwerke gefunden.</div>
+  <div class="gallery" id="bilderGallery"></div>
+  <div class="no-results" id="bilderNoResults">Keine passenden Bilder gefunden.</div>
+</section>
+
+<section id="aquarelleSection" class="hidden">
+  <h2 class="section-title">Aquarelle</h2>
+  <p class="section-description">Die Aquarelle der Ausstellung.</p>
+
+  <div class="search-wrap">
+    <input type="search" id="aquarelleSearchInput" placeholder="⌕ Aquarelle suchen ..." aria-label="Aquarelle suchen" oninput="searchArtworks('aquarelle')">
+    <div class="search-hint">Durchsuche die Aquarelle nach Nummer, Titel oder Beschreibung.</div>
+  </div>
+
+  <div class="gallery" id="aquarelleGallery"></div>
+  <div class="no-results" id="aquarelleNoResults">Keine passenden Aquarelle gefunden.</div>
 </section>
 
 <section id="aboutSection" class="panel">
@@ -285,7 +299,10 @@ const INTRO_DEFAULTS={
 };
 
 let artworks=[];
+let bilder=[];
+let aquarelle=[];
 let activeArtworkId=null;
+let activeGalleryCategory="bilder";
 let artistProfile={
   title:"Über die Künstlerin",
   description:"Ein Einblick in die Künstlerin, ihre Gedanken und ihre kreative Arbeit. Jedes Objekt erzählt seine eigene Geschichte und eröffnet einen neuen Blick auf die kleinen und großen Dinge des Lebens."
@@ -338,12 +355,15 @@ async function loadArtworks(){
       .order("id");
     if(error)throw error;
 
-    // Eine leere Datenbank bleibt leer. Platzhalter nur bei einem Ladefehler.
+    // Die Bildnummer bestimmt den Bereich: 1–50 Bilder, 51–118 Aquarelle.
     artworks=(data||[]).filter(a=>a.is_visible!==false);
   }catch(e){
     console.error("Kunstwerke konnten nicht geladen werden:",e);
     artworks=defaultArtworks();
   }
+
+  bilder=artworks.filter(a=>Number(a.id)>=1&&Number(a.id)<=50);
+  aquarelle=artworks.filter(a=>Number(a.id)>=51&&Number(a.id)<=118);
   renderGallery();
   openArtworkFromUrl();
 }
@@ -411,11 +431,22 @@ async function loadSiteSettings(){
   }
 }
 
+function getArtworkList(category=activeGalleryCategory){
+  return category==="aquarelle"?aquarelle:bilder;
+}
+
 function renderGallery(){
-  const gallery=document.getElementById("gallery");
+  renderGalleryFor("bilder");
+  renderGalleryFor("aquarelle");
+}
+
+function renderGalleryFor(category){
+  const isAquarelle=category==="aquarelle";
+  const list=getArtworkList(category);
+  const gallery=document.getElementById(isAquarelle?"aquarelleGallery":"bilderGallery");
   gallery.innerHTML="";
 
-  artworks.forEach((artwork,index)=>{
+  list.forEach((artwork,index)=>{
     const card=document.createElement("div");
     card.className="artwork";
     card.style.animationDelay=Math.min(index*35,500)+"ms";
@@ -423,7 +454,7 @@ function renderGallery(){
 
     const img=document.createElement("img");
     img.src=`./bilder/bild${artwork.id}.jpg`;
-    img.alt=artwork.title||`Kunstwerk ${artwork.id}`;
+    img.alt=artwork.title||(isAquarelle?`Aquarell ${artwork.id}`:`Bild ${artwork.id}`);
     img.loading="lazy";
 
     img.onerror=()=>{
@@ -432,51 +463,62 @@ function renderGallery(){
     };
 
     const caption=document.createElement("p");
-    caption.textContent=artwork.title||`Kunstwerk ${artwork.id}`;
+    caption.textContent=artwork.title||(isAquarelle?`Aquarell ${artwork.id}`:`Bild ${artwork.id}`);
 
     card.append(img,caption);
     card.onclick=()=>openModal(artwork.id);
     gallery.appendChild(card);
   });
 
-  searchArtworks();
+  searchArtworks(category);
 }
 
-function searchArtworks(){
-  const query=document.getElementById("searchInput").value.trim().toLowerCase();
+function searchArtworks(category=activeGalleryCategory){
+  const isAquarelle=category==="aquarelle";
+  const input=document.getElementById(isAquarelle?"aquarelleSearchInput":"bilderSearchInput");
+  const gallery=document.getElementById(isAquarelle?"aquarelleGallery":"bilderGallery");
+  const noResults=document.getElementById(isAquarelle?"aquarelleNoResults":"bilderNoResults");
+  const query=input.value.trim().toLowerCase();
   let visible=0;
 
-  document.querySelectorAll(".artwork").forEach(card=>{
+  gallery.querySelectorAll(".artwork").forEach(card=>{
     const a=getArtworkById(card.dataset.id);
     const text=[a?.title,a?.description,String(a?.id)].join(" ").toLowerCase();
     const match=text.includes(query);
 
-    // Karten mit defektem Bild bleiben ausgeblendet.
     card.style.display=match&&card.dataset.imageError!=="true"?"":"none";
-
     if(match&&card.dataset.imageError!=="true")visible++;
   });
 
-  document.getElementById("noResults").style.display=visible===0?"block":"none";
+  noResults.style.display=visible===0?"block":"none";
 }
 
 function updateArtworkUrl(id){
   const url=new URL(location.href);
-  url.search="";url.hash="";
-  if(id!==null)url.searchParams.set("bild",String(id));
-  history.replaceState({},"",url);
+  url.search="";
+  url.hash="";
+  if(id!==null){
+    url.searchParams.set("bild",String(id));
+    url.searchParams.set("bereich",Number(id)>=51?"aquarelle":"bilder");
+  }
+  history.replaceState({}, "", url);
 }
 
 function updateArtworkNavigation(){
-  const index=artworks.findIndex(a=>Number(a.id)===Number(activeArtworkId));
+  const list=getArtworkList(activeGalleryCategory);
+  const index=list.findIndex(a=>Number(a.id)===Number(activeArtworkId));
   document.getElementById("previousArtworkButton").disabled=index<=0;
-  document.getElementById("nextArtworkButton").disabled=index<0||index>=artworks.length-1;
-  document.getElementById("artworkCounter").textContent=index<0?"":`${index+1} / ${artworks.length}`;
+  document.getElementById("nextArtworkButton").disabled=index<0||index>=list.length-1;
+  document.getElementById("artworkCounter").textContent=
+    index<0?"":`${index+1} / ${list.length}`;
 }
 
 function openModal(id){
   const artwork=getArtworkById(id);
   if(!artwork)return;
+
+  activeGalleryCategory=Number(id)>=51?"aquarelle":"bilder";
+  showPage(activeGalleryCategory);
 
   activeArtworkId=Number(id);
   document.getElementById("modalImage").src=`./bilder/bild${id}.jpg`;
@@ -495,17 +537,20 @@ function openModal(id){
 
 function navigateArtwork(direction){
   if(activeArtworkId===null)return;
-  const index=artworks.findIndex(a=>Number(a.id)===Number(activeArtworkId));
-  const next=artworks[index+direction];
+  const list=getArtworkList(activeGalleryCategory);
+  const index=list.findIndex(a=>Number(a.id)===Number(activeArtworkId));
+  const next=list[index+direction];
   if(next)openModal(next.id);
 }
 
 function openArtworkFromUrl(){
-  const id=Number(new URLSearchParams(location.search).get("bild"));
-  if(!Number.isInteger(id)||id<1)return;
+  const params=new URLSearchParams(location.search);
+  const id=Number(params.get("bild"));
+  if(!Number.isInteger(id)||id<1||id>118)return;
 
   if(getArtworkById(id)){
-    showPage("gallery");
+    const category=id>=51?"aquarelle":"bilder";
+    showPage(category);
     openModal(id);
   }
 }
@@ -514,6 +559,7 @@ function getArtworkShareUrl(id){
   const url=new URL(location.href);
   url.search="";url.hash="";
   url.searchParams.set("bild",String(id));
+  url.searchParams.set("bereich",Number(id)>=51?"aquarelle":"bilder");
   return url.toString();
 }
 
@@ -579,15 +625,16 @@ function closeModal(event){
 }
 
 function showPage(page){
-  const gallery=document.getElementById("gallerySection");
+  const bilderSection=document.getElementById("bilderSection");
+  const aquarelleSection=document.getElementById("aquarelleSection");
   const about=document.getElementById("aboutSection");
 
-  if(page==="about"){
-    gallery.classList.add("hidden");
-    about.classList.add("active");
-  }else{
-    gallery.classList.remove("hidden");
-    about.classList.remove("active");
+  bilderSection.classList.toggle("hidden",page!=="bilder");
+  aquarelleSection.classList.toggle("hidden",page!=="aquarelle");
+  about.classList.toggle("active",page==="about");
+
+  if(page==="bilder"||page==="aquarelle"){
+    activeGalleryCategory=page;
   }
 
   window.scrollTo({top:0,behavior:"smooth"});
